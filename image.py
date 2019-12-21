@@ -4,15 +4,13 @@ import numpy as np
 import cv2
 import math
 
-
-
 def distance (x, y, a, b):
     return np.sqrt((x - a) ** 2 + (y-b)**2)
 
 
 def take_pictures():
 
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(1)
     while 1:
 
         # Capture frame-by-frame
@@ -44,7 +42,6 @@ def take_pictures():
 
         # Get the mass centers
         for i in range(len(contours_filtered)):
-            
             if cv2.arcLength(contours_filtered[i], True) < 20:
                 continue
             # add 1e-5 to avoid division by zero
@@ -60,7 +57,6 @@ def take_pictures():
             pushable = True
             for j in range(len(contours_filterered)):
                 if distance(mc[i][0], mc[i][1], mc_filtered[j][0], mc_filtered[j][1]) < 30:
-                    
                     pushable = False
                     break
             
@@ -97,10 +93,6 @@ def take_pictures():
             cv2.line(drawing, (x1, y1), (x2, y2), color)
             print(i, P_angle * 180 / math.pi , mc_filtered[i])
             
-
-
-
-
         cv2.imshow('Contours', drawing)
         if cv2.waitKey() == ord('q'):
             return mc_filtered, principal_angle
@@ -114,7 +106,9 @@ def mapping(act, image):
     one = [[1,1,1]]
     ones = np.matrix(one)
     act = np.concatenate((act, ones.T), axis=1)
+    act = act.T
     image = np.concatenate((image, ones.T), axis=1)
+    image = image.T
     A = np.matmul(act, image.I)
     return A
         
