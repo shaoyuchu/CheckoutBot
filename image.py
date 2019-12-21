@@ -4,18 +4,22 @@ import numpy as np
 import cv2
 import math
 
+
+
 def distance (x, y, a, b):
     return np.sqrt((x - a) ** 2 + (y-b)**2)
 
 
 def take_pictures():
+
+    cap = cv2.VideoCapture(2)
     while 1:
-        cap = cv2.VideoCapture(2)
 
         # Capture frame-by-frame
         ret, image = cap.read()
-
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        cv2.imshow('raw', gray)
         gray = cv2.GaussianBlur(gray, (5, 5), 0)
         cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY, gray)
         done = cv2.morphologyEx(gray, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT,(5,5)))
@@ -100,6 +104,7 @@ def take_pictures():
         cv2.imshow('Contours', drawing)
         if cv2.waitKey() == ord('q'):
             return mc_filtered, principal_angle
+    return
 
 
 def mapping(act, image):

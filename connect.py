@@ -12,3 +12,5 @@ def connect2Arm():
     s.connect((TCP_IP, TCP_PORT))
 
     return s
+
+connect2Arm()
