@@ -29,6 +29,7 @@ if __name__ == "__main__":
         img_pos[i, 0] = [mc[0][0]]
         img_pos[i, 1] = [mc[0][1]]
         print('mc for calibration: ', img_pos[i, 0], ', ', img_pos[i, 1])
+        input('Please remove the object.')
     
     s.close()
 
