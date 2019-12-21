@@ -10,7 +10,7 @@ def distance (x, y, a, b):
 
 def take_pictures():
 
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(1)
     while 1:
 
         # Capture frame-by-frame
@@ -105,7 +105,9 @@ def mapping(act, image):
     one = [[1,1,1]]
     ones = np.matrix(one)
     act = np.concatenate((act, ones.T), axis=1)
+    act = act.T
     image = np.concatenate((image, ones.T), axis=1)
+    image = image.T
     A = np.matmul(act, image.I)
     return A
         
