@@ -110,6 +110,7 @@ def take_pictures():
 def mapping(act, image):
 
     act = np.matrix(act)
+    
     one = [[1,1,1]]
     ones = np.matrix(one)
     act = np.concatenate((act, ones.T), axis=1)
