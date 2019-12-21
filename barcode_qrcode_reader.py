@@ -2,6 +2,8 @@ from pyzbar.pyzbar import decode
 import cv2
 import numpy as np
 
+camera_index = 2
+
 def qrcodeReader(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     qrcodes = decode(image)
@@ -13,13 +15,11 @@ def qrcodeReader(image):
     data = map(lambda bc: bc.data.decode("utf-8"), qrcodes)
     return list(data)
 
-cap = cv2.VideoCapture(2)
+
+cap = cv2.VideoCapture(camera_index)
+
 while True:
     ret, frame = cap.read()
-
-    # gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # gray_img = cv2.GaussianBlur(gray_img, (5, 5), 0)
-    # cv2.threshold(gray_img, 170, 255, cv2.THRESH_BINARY,gray_img)
     qrcode = qrcodeReader(frame)
     print(qrcode)
     cv2.imshow('qrcode reader', frame)

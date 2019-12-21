@@ -5,16 +5,18 @@ import cv2
 import math
 from image import take_pictures, mapping
 from connect import connect2Arm
+from detect import *
 
-# [[x],[y],[1]]
-# mapping
-# actual = [[-132.0847, 236.6651, 91.935104], [390.27371,411.77688, 574.30101], [1,1,1]]
-# img = [[469.51339957488125, 77.10519952646561,230.15167559590046], [131.64767848311172, 142.55809317365495, 315.3116258908931], [1,1,1]]
-# A = mapping(actual, img)
 A = np.load('img2actual.npy')
-print('A', A)
 number_of_objects = 3
 step_by_step = False
+
+
+def checkPoint(val):
+    if step_by_step:
+        print(val)
+        input()
+
 
 if __name__ == "__main__":
     
@@ -23,62 +25,64 @@ if __name__ == "__main__":
     
     for i in range(1, number_of_objects):
 
+        # compute the actual position
         img_p = [[mc[i][0]], [mc[i][1]], [1]]
         p_hat = np.matmul(A, img_p)
         p_hat = np.reshape(p_hat, 3)
-        print(img_p, p_hat)
-        val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " 0 " + str(-p_angle[i]) +" 0 180"
-        if step_by_step:
-            print(val)
-            input()
+
+        # move above the target
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + str(-p_angle[i]) + ' 0 180'
+        checkPoint(val)
         s.sendall(val.encode('ascii'))
+        data = s.recv(1024)
 
-        val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " -200 " + str(-p_angle[i]) +" 0 180"
-        if step_by_step:
-            print(val)
-            input()
+        # move down to reach the target
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -200 ' + str(-p_angle[i]) + ' 0 180'
+        checkPoint(val)
         s.sendall(val.encode('ascii'))
+        data = s.recv(1024)
 
-        val = "OUTPUT 48 ON"
+        # close the gripper
+        s.sendall(close_grip.encode('ascii'))
+        data = s.recv(1024)
+
+        # detect(i, s)
+
+        # lift the target vertically
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + str(-p_angle[i]) + ' 0 180'
+        checkPoint(val)
         s.sendall(val.encode('ascii'))
-
-
-        val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " 0 " + str(-p_angle[i]) +" 0 180"
-        if step_by_step:
-            print(val)
-            input()
-        s.sendall(val.encode('ascii'))
-
+        data = s.recv(1024)
+        
+        # compute the actual position of the destination
         img_p = [[mc[0][0]], [mc[0][1]], [1]]
         p_hat = np.matmul(A, img_p)
         p_hat = np.reshape(p_hat, 3)
-        print(p_hat)
 
+        # pile up
         if i == 2:
-            val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " -120 " + str(-p_angle[0]) +" 0 180"
+            val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -120 ' + str(-p_angle[0]) + ' 0 180'
         else:
-            val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " -155 " + str(-p_angle[0]) +" 0 180"
-        if step_by_step:
-            print(val)
-            input()
+            val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -155 ' + str(-p_angle[0]) + ' 0 180'
+        checkPoint(val)
         s.sendall(val.encode('ascii'))
+        data = s.recv(1024)
 
-        val = "OUTPUT 48 OFF"
-        if step_by_step:
-            input()
+        # open the gripper, release the target
+        checkPoint('Grip')
+        s.sendall(open_grip.encode('ascii'))
+        data = s.recv(1024)
+
+        # move upward vertically
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + str(-p_angle[0]) + ' 0 180'
+        checkPoint(val)
         s.sendall(val.encode('ascii'))
+        data = s.recv(1024)
 
-
-        val = "MOVP " + str(p_hat[0]) +" "+ str(p_hat[1]) + " 0 " + str(-p_angle[0]) +" 0 180"
-        if step_by_step:
-            print(val)
-            input()
-        s.sendall(val.encode('ascii'))
-
-    if step_by_step:
-        input()
-    goHome = "GOHOME"
-    s.sendall(goHome.encode('ascii'))
+    # go home
+    go_home = 'GOHOME'
+    checkPoint(go_home)
+    s.sendall(go_home.encode('ascii'))
     data = s.recv(1024)
     print(data)
 

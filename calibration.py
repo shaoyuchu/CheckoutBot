@@ -20,11 +20,12 @@ if __name__ == "__main__":
         s.sendall(action.encode('ascii'))
 
         # place the item
-        input('Please place the object in the gripper.')
+        print('Please place the object in the gripper.')
+        input('Press any key to continue.')
 
         # home
-        goHome = 'GOHOME'
-        s.sendall(goHome.encode('ascii'))
+        go_home = 'GOHOME'
+        s.sendall(go_home.encode('ascii'))
         time.sleep(5)
 
         # get centroid, store in img_pos
@@ -32,14 +33,13 @@ if __name__ == "__main__":
         img_pos[i, 0] = mc[0][0]
         img_pos[i, 1] = mc[0][1]
         print('mc for calibration: ', img_pos[i, 0], ', ', img_pos[i, 1])
-        input('Please remove the object.')
+        print('Please remove the object.')
+        input('Press any key to continue.')
     
     s.close()
 
     # compute and store the mapping matrix
-    print("actual: ", actual_pos)
-    print("img: ", img_pos)
     img2actual = mapping(actual_pos, img_pos)
     np.save('img2actual.npy', img2actual)
-    print(np.matmul(img2actual, img_pos))
+    print('img2actual: ', img2actual)
     print('\'img2actual.npy\' saved')

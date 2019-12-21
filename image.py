@@ -1,18 +1,18 @@
-#!/usr/bin/env python
-
 import numpy as np
 import cv2
 import math
+
+camera_index = 2
+
 
 def distance (x, y, a, b):
     return np.sqrt((x - a) ** 2 + (y-b)**2)
 
 
 def take_pictures():
+    cap = cv2.VideoCapture(camera_index)
 
-    cap = cv2.VideoCapture(1)
     while 1:
-
         # Capture frame-by-frame
         ret, image = cap.read()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -25,7 +25,6 @@ def take_pictures():
 
         # Display the resulting frame
         contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
         contours_filtered = []
 
         # Filter out large contours
@@ -53,13 +52,13 @@ def take_pictures():
         mu_filtered = []
         mc_filtered = []
         contours_filterered = []
+
         for i in range(len(contours_filtered)):
             pushable = True
             for j in range(len(contours_filterered)):
                 if distance(mc[i][0], mc[i][1], mc_filtered[j][0], mc_filtered[j][1]) < 30:
                     pushable = False
                     break
-            
             if pushable:
                 contours_filterered.append(contours_filtered[i])
                 mu_filtered.append(mu[i])
@@ -67,12 +66,13 @@ def take_pictures():
 
         drawing = np.zeros((edges.shape[0],edges.shape[1], 3), dtype=np.uint8)
         principal_angle = []
-        # Draw contours
+
         for i in range(len(contours_filterered)):
+            # Draw contours
             color = (np.random.randint(0,256), np.random.randint(0,256), np.random.randint(0,256))
             cv2.drawContours(drawing, contours_filterered, i, color, 2)
             cv2.circle(drawing, (int(mc_filtered[i][0]), int(mc_filtered[i][1])), 4, color, -1)
-        # Principal angle
+            # Principal angle
             num = 2 * (mu_filtered[i]['m00'] * mu_filtered[i]['m11'] -mu_filtered[i]['m10'] *mu_filtered[i]['m01'])
             denom = ((mu_filtered[i]['m00'] *mu_filtered[i]['m20'] -mu_filtered[i]['m10'] *mu_filtered[i]['m10']) - (mu_filtered[i]['m00'] *mu_filtered[i]['m02'] -mu_filtered[i]['m01'] *mu_filtered[i]['m01']))
             P_angle = 0.5 * math.atan2( num, denom)
@@ -100,13 +100,11 @@ def take_pictures():
 
 
 def mapping(act, image):
-
     act = np.matrix(act)
-    one = [[1,1,1]]
-    ones = np.matrix(one)
+    ones = np.matrix(np.ones([1, 3]))
     act = np.concatenate((act, ones.T), axis=1)
-    act = act.T
     image = np.concatenate((image, ones.T), axis=1)
+    act = act.T
     image = image.T
     A = np.matmul(act, image.I)
     return A
