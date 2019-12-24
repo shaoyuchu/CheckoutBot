@@ -8,6 +8,7 @@ from connect import connect2Arm
 from detect import *
 
 A = np.load('img2actual.npy')
+pixel2mm = np.load('pixel2mm.npy')
 number_of_objects = 3
 step_by_step = False
 
