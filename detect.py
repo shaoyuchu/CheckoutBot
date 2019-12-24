@@ -11,9 +11,13 @@ camera_index = 2
 def qrcodeReader():
     data = ""
     cap = cv2.VideoCapture(camera_index)
+
+    ret, frame = cap.read()
+    cv2.imshow("contour", frame)
     for i in range(20):
         
         ret, frame = cap.read()
+
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         qrcodes = decode(image)
         for decodedObject in qrcodes:
@@ -34,12 +38,17 @@ def qrcodeReader():
 # 2 scans
 def scan_rotate(s):
     s.sendall(scan_pos.encode('ascii'))
-    
-    detected= qrcodeReader()
+    input("press anything when object is in place")
+    detected = qrcodeReader()
+
     # Register "SN"
     if detected:
         return True
-    return False
+
+    s.sendall(scan_pos_inv.encode('ascii'))
+    input("press anything when object is in place")
+    detected = qrcodeReader()
+    return detected
 
 # Exit : back to bar code scanning position
 # Detecting barcode for 1 object
@@ -53,17 +62,18 @@ def detect(i, s):
         input()
         s.sendall(open_grip.encode('ascii')) # open gripper
         input()
+        s.sendall(inter_pos_rise[i].encode('ascii'))
         s.sendall(scan_pos.encode('ascii')) # go to scan pos
         return
     input()
     # If no QR code detected, grip the next 2 sides of the object
-    s.sendall(man_pose(0, 0).encode('ascii'))   # go to man_pose
+    s.sendall(man_pose_J.encode('ascii'))   # go to man_pose
     s.sendall(open_grip.encode('ascii'))        # open gripper
     input()
-    s.sendall(man_pose(50, 0).encode('ascii'))  # rise 50mm
-    s.sendall(man_pose(50, 90).encode('ascii')) # rotate 90deg
+    s.sendall(rise_pose.encode('ascii'))  # rise 50mm
+    s.sendall(Rotate_gripper_90.encode('ascii')) # rotate 90deg
     input()
-    s.sendall(man_pose(0, 90).encode('ascii'))  # lower 50mm
+    s.sendall(man_pose_inv.encode('ascii'))  # lower 50mm
     s.sendall(close_grip.encode('ascii'))       # close gripper
     input()
     if scan_rotate(s):
@@ -72,19 +82,23 @@ def detect(i, s):
         input()
         s.sendall(open_grip.encode('ascii')) # open gripper
         input()
+        s.sendall(inter_pos_rise[i].encode('ascii'))
         s.sendall(scan_pos.encode('ascii')) # go to scan pos
         return
 
     # If no QR code detected, do the roll manoeuver
     input()
-    s.sendall(man_pose(0, 0).encode('ascii'))   # go to man_pose
+    s.sendall(man_pose_J.encode('ascii'))
+    input()
     s.sendall(open_grip.encode('ascii'))        # open gripper
+    s.sendall(rise_pose.encode('ascii'))        # rise 1200mm
+
+    input("stop here")
+    s.sendall(temp_pose.encode('ascii'))        # go to temp pose (move back)
     input()
-    s.sendall(man_pose(120, 0).encode('ascii')) # rise 1200mm
-    s.sendall(temp_pose.encode('ascii'))        # go to temp pose (L shape)
-    input()
-    s.sendall(woman_pose.encode('ascii'))       # go to woman pose
-    s.sendall(open_grip.encode('ascii'))        # close gripper
+    s.sendall(woman_pose.encode('ascii'))       # go to woman pose (L shape)
+    s.sendall(close_grip.encode('ascii'))        # close gripper
+
 
     scan_rotate(s)
     
