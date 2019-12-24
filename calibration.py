@@ -45,12 +45,12 @@ if __name__ == "__main__":
         img_dis = np.linalg.norm(img_pos[i] - img_pos[j])
         pixel2mm.append(actual_dis / img_dis)
     pixel2mm = sum(pixel2mm) / len(pixel2mm)
-    np.save('pixel2mm.npy', pixel2mm)
+    np.save('./calibration_data/pixel2mm.npy', pixel2mm)
     print("pixel2mm: ", pixel2mm)
-    print('\'pixel2mm.npy\' saved')
+    print('\'./calibration_data/pixel2mm.npy\' saved')
 
     # compute and store the mapping matrix
     img2actual = mapping(actual_pos, img_pos)
-    np.save('img2actual.npy', img2actual)
+    np.save('./calibration_data/img2actual.npy', img2actual)
     print('img2actual: ', img2actual)
-    print('\'img2actual.npy\' saved')
+    print('\'./calibration_data/img2actual.npy\' saved')

@@ -7,18 +7,20 @@ from image import take_pictures, mapping
 from connect import connect2Arm
 from detect import *
 
+# json implementation, fast
 # import json
-# f =  open('obj_info.json')
+# f =  open('./obj_data/obj_info.json')
 # data = json.load(f)
 # f.close()
 
+# csv implementation, clear
 # import pandas as pd
-# df = pd.read_csv('obj_info.csv', index_col=0)
+# df = pd.read_csv('./obj_data/obj_info.csv', index_col=0)
 # print(df['weight'][1]) # 20
 
 
-A = np.load('img2actual.npy')
-pixel2mm = np.load('pixel2mm.npy')
+A = np.load('./calibration_data/img2actual.npy')
+pixel2mm = np.load('./calibration_data/pixel2mm.npy')
 number_of_objects = 3
 step_by_step = False
 
