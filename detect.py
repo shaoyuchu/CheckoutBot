@@ -99,6 +99,13 @@ def detect(i, s):
     s.sendall(woman_pose.encode('ascii'))       # go to woman pose (L shape)
     s.sendall(close_grip.encode('ascii'))        # close gripper
 
-
+    input()
     scan_rotate(s)
+    input()
+    s.sendall(inter_pos[i].encode('ascii'))
+    input()
+    s.sendall(open_grip.encode('ascii')) # open gripper
+    input()
+    s.sendall(inter_pos_rise[i].encode('ascii'))
+    s.sendall(scan_pos.encode('ascii')) # go to scan pos
     

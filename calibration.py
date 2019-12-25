@@ -44,6 +44,7 @@ if __name__ == "__main__":
         actual_dis = np.linalg.norm(actual_pos[i] - actual_pos[j])
         img_dis = np.linalg.norm(img_pos[i] - img_pos[j])
         pixel2mm.append(actual_dis / img_dis)
+        print(actual_dis / img_dis)
     pixel2mm = sum(pixel2mm) / len(pixel2mm)
     np.save('./calibration_data/pixel2mm.npy', pixel2mm)
     print("pixel2mm: ", pixel2mm)
