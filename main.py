@@ -7,8 +7,21 @@ from image import take_pictures, mapping
 from connect import connect2Arm
 from detect import *
 
-A = np.load('img2actual.npy')
-number_of_objects = 1
+# json implementation, fast
+# import json
+# f =  open('./obj_data/obj_info.json')
+# data = json.load(f)
+# f.close()
+
+# csv implementation, clear
+# import pandas as pd
+# df = pd.read_csv('./obj_data/obj_info.csv', index_col=0)
+# print(df['weight'][1]) # 20
+
+
+A = np.load('./calibration_data/img2actual.npy')
+pixel2mm = np.load('./calibration_data/pixel2mm.npy')
+number_of_objects = 2
 step_by_step = False
 
 
@@ -31,13 +44,13 @@ if __name__ == "__main__":
         p_hat = np.reshape(p_hat, 3)
 
         # move above the target
-        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + str(-p_angle[i]) + ' 0 180'
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + str(-p_angle[i]) + ' 0 180\n'
         checkPoint(val)
         s.sendall(val.encode('ascii'))
         data = s.recv(1024)
 
         # move down to reach the target
-        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -180 ' + str(-p_angle[i]) + ' 0 180'
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -180 ' + str(-p_angle[i]) + ' 0 180\n'
         checkPoint(val)
         s.sendall(val.encode('ascii'))
         data = s.recv(1024)
@@ -80,7 +93,7 @@ if __name__ == "__main__":
         # data = s.recv(1024)
 
     # go home
-    go_home = 'GOHOME'
+    go_home = 'GOHOME\n'
     checkPoint(go_home)
     s.sendall(go_home.encode('ascii'))
     data = s.recv(1024)
