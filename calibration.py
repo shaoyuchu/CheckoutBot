@@ -39,10 +39,23 @@ if __name__ == "__main__":
     s.close()
 
     # compute image pixel to real world mm
+    # ones = np.matrix(np.ones([1, 3], dtype=float))
+    # actual_pos = np.concatenate((actual_pos, ones.T), axis=1)
+    # actual_pos = actual_pos.T
+    # print(actual_pos)
+    # A = np.matrix(np.load('./calibration_data/img2actual.npy'))
+
+    # img_pos = np.matmul(A.I, actual_pos)
+    # print(img_pos)
+
     pixel2mm = []
     for [i, j] in [[0, 1], [0, 2], [1, 2]]:
         actual_dis = np.linalg.norm(actual_pos[i] - actual_pos[j])
         img_dis = np.linalg.norm(img_pos[i] - img_pos[j])
+        # print("actual_dis", actual_dis)
+        # print("img_dis", img_dis)
+        print(i, j)
+        print(actual_dis / img_dis)
         pixel2mm.append(actual_dis / img_dis)
     pixel2mm = sum(pixel2mm) / len(pixel2mm)
     np.save('./calibration_data/pixel2mm.npy', pixel2mm)
