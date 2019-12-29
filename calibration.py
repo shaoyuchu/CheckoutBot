@@ -57,6 +57,7 @@ if __name__ == "__main__":
         print(i, j)
         print(actual_dis / img_dis)
         pixel2mm.append(actual_dis / img_dis)
+        print(actual_dis / img_dis)
     pixel2mm = sum(pixel2mm) / len(pixel2mm)
     np.save('./calibration_data/pixel2mm.npy', pixel2mm)
     print("pixel2mm: ", pixel2mm)
@@ -67,3 +68,4 @@ if __name__ == "__main__":
     np.save('./calibration_data/img2actual.npy', img2actual)
     print('img2actual: ', img2actual)
     print('\'./calibration_data/img2actual.npy\' saved')
+    

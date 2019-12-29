@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import math
 
+ratio = np.load('./calibration_data/pixel2mm.npy')
+
 camera_index = 2
 
 
@@ -64,6 +66,7 @@ def take_pictures():
                 mu_filtered.append(mu[i])
                 mc_filtered.append(mc[i])
 
+
         drawing = np.zeros((edges.shape[0],edges.shape[1], 3), dtype=np.uint8)
         principal_angle = []
 
@@ -71,6 +74,14 @@ def take_pictures():
             # Draw contours
             color = (np.random.randint(0,256), np.random.randint(0,256), np.random.randint(0,256))
             cv2.drawContours(drawing, contours_filterered, i, color, 2)
+            bound_rect = cv2.minAreaRect(contours_filterered[i])
+            
+            bound_4 = cv2.boxPoints(bound_rect)
+            bound_4 = np.linalg.norm(bound_4[0] - bound_4[1]), np.linalg.norm(bound_4[1] - bound_4[2])
+            actual_bound = bound_4 * ratio
+            print("length of bounding box: ", bound_4)
+            print("actual length: ", actual_bound)
+
             cv2.circle(drawing, (int(mc_filtered[i][0]), int(mc_filtered[i][1])), 4, color, -1)
             # Principal angle
             num = 2 * (mu_filtered[i]['m00'] * mu_filtered[i]['m11'] -mu_filtered[i]['m10'] *mu_filtered[i]['m01'])
@@ -93,9 +104,12 @@ def take_pictures():
             cv2.line(drawing, (x1, y1), (x2, y2), color)
             print(i, P_angle * 180 / math.pi , mc_filtered[i])
             
+            
         cv2.imshow('Contours', drawing)
         if cv2.waitKey() == ord('q'):
+            cv2.destroyWindow('raw')
             return mc_filtered, principal_angle
+        
     return
 
 
