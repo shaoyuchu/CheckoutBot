@@ -2,10 +2,17 @@ import gurobipy as gp
 from gurobipy import GRB
 from time import process_time
 
-container_size = [4, 2, 4]
-item_size = [[2, 2, 1, 1, 1, 1], [2, 2, 1, 1, 1, 1], [2, 1, 1, 1, 1, 1]]
+# TODO: enlarge items, extract xyzabc
+
+# container_size = [x, y, z]
+# item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
+
+margin = 5
+container_size = [2, 2, 10]
+item_size = [[2, 2, 1], [2, 1, 1], [2, 1, 2]]
 
 def packing(container_size, item_size):
+
     # ---------------------------------------- MODEL ---------------------------------------- 
 
     model = gp.Model("packing")
@@ -13,22 +20,11 @@ def packing(container_size, item_size):
     # ---------------------------------------- PARAMETERS ---------------------------------------- 
 
     # container dimensions
-    # A = 4
-    # B = 2
-    # C = 4
-
-    # # number of item
-    # n_item = 6
-
-    # # item dimensions
-    # m = [2, 2, 1, 1, 1, 1]
-    # n = [2, 2, 1, 1, 1, 1]
-    # l = [2, 1, 1, 1, 1, 1]
-
     A = container_size[0]
     B = container_size[1]
     C = container_size[2]
 
+    # item dimensions
     m = item_size[0]
     n = item_size[1]
     l = item_size[2]
@@ -42,14 +38,14 @@ def packing(container_size, item_size):
     # ---------------------------------------- VARIABLES ----------------------------------------
 
     # position
-    x = model.addVars(n_item, name='x')
-    y = model.addVars(n_item, name='y')
-    z = model.addVars(n_item, name='z')
+    x = model.addVars(n_item, lb=0, name='x')
+    y = model.addVars(n_item, lb=0, name='y')
+    z = model.addVars(n_item, lb=0, name='z')
 
     # orientation after packing
-    a = model.addVars(n_item, name='a')
-    b = model.addVars(n_item, name='b')
-    c = model.addVars(n_item, name='c')
+    a = model.addVars(n_item, lb=0, name='a')
+    b = model.addVars(n_item, lb=0, name='b')
+    c = model.addVars(n_item, lb=0, name='c')
 
     # non-overlapping
     o_x = model.addVars(2, n_item, n_item, vtype=GRB.BINARY, name='o_x')
@@ -68,7 +64,7 @@ def packing(container_size, item_size):
     e_cl = model.addVars(n_item, vtype=GRB.BINARY, name='e_cl')
 
     #   max height
-    max_height = model.addVar(name='max_height')
+    max_height = model.addVar(lb=0, name='max_height')
 
     # ---------------------------------------- OBJECTIVE ----------------------------------------
 
@@ -125,14 +121,18 @@ def packing(container_size, item_size):
         model.addConstr(max_height >= z[i] + c[i], 'max_height')
 
     # ---------------------------------------- RESULT ----------------------------------------
-
+    
     model.optimize()
-
-    for var in model.getVars():
-        print('%s %g' % (var.varName, var.x))
-
     print("\ntime: ", process_time(), "sec")
-    print('Objective: %g' % model.objVal)
+
+    if model.Status == GRB.OPTIMAL:
+        
+        print('\nMax Height = %g' % model.objVal)
+        for i in range(n_item):
+            print('x: ', '%.1f'%x[i].x, '~', '%.1f'%(x[i].x + a[i].x))
+            print('y: ', '%.1f'%y[i].x, '~', '%.1f'%(y[i].x + b[i].x))
+            print('z: ', '%.1f'%z[i].x, '~', '%.1f'%(z[i].x + c[i].x), '\n')
+
 
 
 packing(container_size, item_size)
