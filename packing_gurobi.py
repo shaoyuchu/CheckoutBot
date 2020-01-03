@@ -4,6 +4,7 @@ from time import process_time
 
 # TODO: enlarge items, extract xyzabc
 
+# INPUT
 # container_size = [x, y, z]
 # item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
 
@@ -126,13 +127,56 @@ def packing(container_size, item_size):
     print("\ntime: ", process_time(), "sec")
 
     if model.Status == GRB.OPTIMAL:
-        
         print('\nMax Height = %g' % model.objVal)
+
+        # get position: x, y, z
+        getValue = lambda var: var.x
+        ret_x = list(map(getValue, x.values()))
+        ret_y = list(map(getValue, y.values()))
+        ret_z = list(map(getValue, z.values()))
+        
+        # get orientation: a, b, c mapping m, n, l
+        orientation = []
+
         for i in range(n_item):
-            print('x: ', '%.1f'%x[i].x, '~', '%.1f'%(x[i].x + a[i].x))
-            print('y: ', '%.1f'%y[i].x, '~', '%.1f'%(y[i].x + b[i].x))
-            print('z: ', '%.1f'%z[i].x, '~', '%.1f'%(z[i].x + c[i].x), '\n')
+            ori = []
+            # longest, m
+            if e_am[i].x == 0:
+                ori.append('x')
+            elif e_bm[i].x == 0:
+                ori.append('y')
+            elif e_cm[i].x == 0:
+                ori.append('z')
+
+            # middle, n
+            if e_an[i].x == 0:
+                ori.append('x')
+            elif e_bn[i].x == 0:
+                ori.append('y')
+            elif e_cn[i].x == 0:
+                ori.append('z')
+
+            # shortest, l
+            if e_al[i].x == 0:
+                ori.append('x')
+            elif e_bl[i].x == 0:
+                ori.append('y')
+            elif e_cl[i].x == 0:
+                ori.append('z')
+
+            orientation.append(ori)
+    return ret_x, ret_y, ret_z, orientation
 
 
+# OUTPUT
+# x, y, z, ori
+# x = [x1, x2, x3, ...]
+# y = [y1, y2, y3, ...]
+# z = [z1, z3, z3, ...]
+# ori = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
 
-packing(container_size, item_size)
+x, y, z, ori = packing(container_size, item_size)
+print('x: ', x)
+print('y: ', y)
+print('z: ', z)
+print('ori: ', ori)
