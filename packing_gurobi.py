@@ -6,7 +6,7 @@ from time import process_time
 
 margin = 5
 container_size = [10, 10, 100]
-item_size = [[2, 2, 1], [2, 1, 1], [2, 1, 2]]
+item_size = [[3, 2, 1], [3, 2, 1], [3, 2, 1]]
 
 def enlargeItemSize(item_size):
     n_size = len(item_size[0])
@@ -15,11 +15,8 @@ def enlargeItemSize(item_size):
             item_size[i][j] += margin
     return item_size
     
-def extractPose(variables):
-    values = {'x' : [],
-              'y' : [],
-              'z' : [],
-              'e_am' : [],
+def extractOrientation(variables):
+    values = {'e_am' : [],
               'e_an' : [],
               'e_al' : [],
               'e_bm' : [],
@@ -35,7 +32,7 @@ def extractPose(variables):
             values[var_name].append(var.x)
     
     orientation = []
-    n_item = len(values['x'])
+    n_item = len(values['e_am'])
     for i in range(n_item):
         ori = []
         # longest, m
@@ -64,7 +61,7 @@ def extractPose(variables):
 
         orientation.append(ori)
 
-    return values['x'], values['y'], values['z'], orientation
+    return orientation
 
 
 # INPUT
@@ -189,23 +186,41 @@ def packing(container_size, item_size, enlarge=False):
     model.optimize()
     print("\ntime: ", process_time(), "sec")
 
+    # ---------------------------------------- GRAVITY ----------------------------------------
+
     ret_x, ret_y, ret_z, orientation = None, None, None, None
     if model.Status == GRB.OPTIMAL:
         print('\nMax Height = %g' % model.objVal)
-        ret_x, ret_y, ret_z, orientation = extractPose(model.getVars())
+        getValue = lambda var: var.x
+        x_pos = list(map(getValue, x.values()))
+        y_pos = list(map(getValue, y.values()))
+        z_pos = list(map(getValue, z.values()))
+        a_len = list(map(getValue, a.values()))
+        b_len = list(map(getValue, b.values()))
+        c_len = list(map(getValue, c.values()))
+        
+        for i in range(n_item):
+            print("x: ", x_pos[i], '-', x_pos[i] + a_len[i])
+            print("y: ", y_pos[i], '-', y_pos[i] + b_len[i])
+            print("z: ", z_pos[i], '-', z_pos[i] + c_len[i])
+
+        ret_x = [x_pos + a_len/2 for x_pos, a_len in zip(x_pos, a_len)]
+        ret_y = [y_pos + b_len/2 for y_pos, b_len in zip(y_pos, b_len)]
+        ret_z = z_pos
+        orientation = extractOrientation(model.getVars())
 
     return ret_x, ret_y, ret_z, orientation
 
 
 # OUTPUT
-# x, y, z, ori
+# (centroid) x, y, z, orientation
 # x = [x1, x2, x3, ...]
 # y = [y1, y2, y3, ...]
 # z = [z1, z3, z3, ...]
-# ori = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
+# orientation = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
 
-x, y, z, ori = packing(container_size, item_size, enlarge=True)
+x, y, z, orientation = packing(container_size, item_size, enlarge=False)
 print('x: ', x)
 print('y: ', y)
 print('z: ', z)
-print('ori: ', ori)
+print('orientation: ', orientation)
