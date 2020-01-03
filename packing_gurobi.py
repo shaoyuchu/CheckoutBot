@@ -1,12 +1,13 @@
 import gurobipy as gp
 from gurobipy import GRB
 from time import process_time
+from functools import cmp_to_key
 
-# TODO: enlarge items, extract xyzabc
+# TODO: add gravity
 
 margin = 5
 container_size = [10, 10, 100]
-item_size = [[3, 2, 1], [3, 2, 1], [3, 2, 1]]
+item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]
 
 def enlargeItemSize(item_size):
     n_size = len(item_size[0])
@@ -14,6 +15,17 @@ def enlargeItemSize(item_size):
         for j in range(n_size):
             item_size[i][j] += margin
     return item_size
+
+def compare(item1, item2):
+    [seq1, x1, y1, z1, ori1] = item1
+    [seq2, x2, y2, z2, ori2] = item2
+    bool2int = lambda b: 1 if b else -1
+    if z1 != z2:
+        return bool2int(z1 > z2)
+    elif y1 != y2:
+        return bool2int(y1 > y2)
+    else:
+        return bool2int(x1 > x2)
     
 def extractOrientation(variables):
     values = {'e_am' : [],
@@ -186,30 +198,29 @@ def packing(container_size, item_size, enlarge=False):
     model.optimize()
     print("\ntime: ", process_time(), "sec")
 
-    # ---------------------------------------- GRAVITY ----------------------------------------
-
     ret_x, ret_y, ret_z, orientation = None, None, None, None
     if model.Status == GRB.OPTIMAL:
         print('\nMax Height = %g' % model.objVal)
+
+        # position
         getValue = lambda var: var.x
         x_pos = list(map(getValue, x.values()))
         y_pos = list(map(getValue, y.values()))
-        z_pos = list(map(getValue, z.values()))
         a_len = list(map(getValue, a.values()))
         b_len = list(map(getValue, b.values()))
-        c_len = list(map(getValue, c.values()))
-        
-        for i in range(n_item):
-            print("x: ", x_pos[i], '-', x_pos[i] + a_len[i])
-            print("y: ", y_pos[i], '-', y_pos[i] + b_len[i])
-            print("z: ", z_pos[i], '-', z_pos[i] + c_len[i])
 
         ret_x = [x_pos + a_len/2 for x_pos, a_len in zip(x_pos, a_len)]
         ret_y = [y_pos + b_len/2 for y_pos, b_len in zip(y_pos, b_len)]
-        ret_z = z_pos
+        ret_z = list(map(getValue, z.values()))
+
+        # orientation
         orientation = extractOrientation(model.getVars())
 
-    return ret_x, ret_y, ret_z, orientation
+        # sort by z, then y, then x
+        item_info = list(zip(range(n_item), ret_x, ret_y, ret_z, orientation))
+        item_info.sort(key=cmp_to_key(compare))
+
+    return item_info
 
 
 # OUTPUT
@@ -219,8 +230,6 @@ def packing(container_size, item_size, enlarge=False):
 # z = [z1, z3, z3, ...]
 # orientation = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
 
-x, y, z, orientation = packing(container_size, item_size, enlarge=False)
-print('x: ', x)
-print('y: ', y)
-print('z: ', z)
-print('orientation: ', orientation)
+item_info = packing(container_size, item_size, enlarge=False)
+for item in item_info:
+    print(item)
