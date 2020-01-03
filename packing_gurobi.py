@@ -1,5 +1,6 @@
 import gurobipy as gp
 from gurobipy import GRB
+from time import process_time
 
 # ---------------------------------------- MODEL ---------------------------------------- 
 
@@ -8,17 +9,17 @@ model = gp.Model("packing")
 # ---------------------------------------- PARAMETERS ---------------------------------------- 
 
 # container dimensions
-A = 5
-B = 5
-C = 5
+A = 4
+B = 2
+C = 4
 
 # number of item
-n_item = 3
+n_item = 6
 
 # item dimensions
-m = [3, 2, 1]
-n = [3, 2, 1]
-l = [3, 2, 1]
+m = [2, 2, 1, 1, 1, 1]
+n = [2, 2, 1, 1, 1, 1]
+l = [2, 1, 1, 1, 1, 1]
 M = max(A, B, C) + max(max(m), max(n), max(l))
 
 # ---------------------------------------- VARIABLES ----------------------------------------
@@ -113,5 +114,6 @@ model.optimize()
 for var in model.getVars():
     print('%s %g' % (var.varName, var.x))
 
+print("\ntime: ", process_time(), "sec")
 print('Objective: %g' % model.objVal)
 
