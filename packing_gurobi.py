@@ -6,7 +6,7 @@ from functools import cmp_to_key
 # TODO: add gravity
 
 margin = 5
-container_size = [10, 10, 100]
+container_size = [10, 20, 100]
 item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]
 
 def enlargeItemSize(item_size):
@@ -22,21 +22,15 @@ def compare(item1, item2):
     bool2int = lambda b: 1 if b else -1
     if z1 != z2:
         return bool2int(z1 > z2)
-    elif y1 != y2:
-        return bool2int(y1 > y2)
-    else:
+    elif x1 != x2:
         return bool2int(x1 > x2)
+    else:
+        return bool2int(y1 > y2)
     
 def extractOrientation(variables):
-    values = {'e_am' : [],
-              'e_an' : [],
-              'e_al' : [],
-              'e_bm' : [],
-              'e_bn' : [],
-              'e_bl' : [],
-              'e_cm' : [],
-              'e_cn' : [],
-              'e_cl' : [],}
+    values = {'e_am' : [], 'e_an' : [], 'e_al' : [],
+              'e_bm' : [], 'e_bn' : [], 'e_bl' : [],
+              'e_cm' : [], 'e_cn' : [], 'e_cl' : [],}
     
     for var in variables:
         var_name = var.varName.split('[')[0]
@@ -96,7 +90,6 @@ def packing(container_size, item_size, enlarge=False):
     # item dimensions
     if enlarge:
         enlargeItemSize(item_size)
-    print(item_size)
 
     m = item_size[0]
     n = item_size[1]
@@ -147,60 +140,81 @@ def packing(container_size, item_size, enlarge=False):
 
     for i in range(n_item):
         # in container
-        model.addConstr(x[i] <= A - a[i])
-        model.addConstr(y[i] <= B - b[i])
-        model.addConstr(z[i] <= C - c[i])
+        model.addConstr(x[i] <= A - a[i], name='in_container_x')
+        model.addConstr(y[i] <= B - b[i], name='in_container_y')
+        model.addConstr(z[i] <= C - c[i], name='in_container_z')
 
         # orientation selection
-        model.addConstr(a[i] - m[i] <= M * e_am[i])
-        model.addConstr(m[i] - a[i] <= M * e_am[i])
-        model.addConstr(a[i] - n[i] <= M * e_an[i])
-        model.addConstr(n[i] - a[i] <= M * e_an[i])
-        model.addConstr(a[i] - l[i] <= M * e_al[i])
-        model.addConstr(l[i] - a[i] <= M * e_al[i])
+        model.addConstr(a[i] - m[i] <= M * e_am[i], name='orientation_selection_am_0')
+        model.addConstr(m[i] - a[i] <= M * e_am[i], name='orientation_selection_am_1')
+        model.addConstr(a[i] - n[i] <= M * e_an[i], name='orientation_selection_an_0')
+        model.addConstr(n[i] - a[i] <= M * e_an[i], name='orientation_selection_an_1')
+        model.addConstr(a[i] - l[i] <= M * e_al[i], name='orientation_selection_al_0')
+        model.addConstr(l[i] - a[i] <= M * e_al[i], name='orientation_selection_al_1')
 
-        model.addConstr(b[i] - m[i] <= M * e_bm[i])
-        model.addConstr(m[i] - b[i] <= M * e_bm[i])
-        model.addConstr(b[i] - n[i] <= M * e_bn[i])
-        model.addConstr(n[i] - b[i] <= M * e_bn[i])
-        model.addConstr(b[i] - l[i] <= M * e_bl[i])
-        model.addConstr(l[i] - b[i] <= M * e_bl[i])
+        model.addConstr(b[i] - m[i] <= M * e_bm[i], name='orientation_selection_bm_0')
+        model.addConstr(m[i] - b[i] <= M * e_bm[i], name='orientation_selection_bm_1')
+        model.addConstr(b[i] - n[i] <= M * e_bn[i], name='orientation_selection_bn_0')
+        model.addConstr(n[i] - b[i] <= M * e_bn[i], name='orientation_selection_bn_1')
+        model.addConstr(b[i] - l[i] <= M * e_bl[i], name='orientation_selection_bl_0')
+        model.addConstr(l[i] - b[i] <= M * e_bl[i], name='orientation_selection_bl_0')
 
-        model.addConstr(c[i] - m[i] <= M * e_cm[i])
-        model.addConstr(m[i] - c[i] <= M * e_cm[i])
-        model.addConstr(c[i] - n[i] <= M * e_cn[i])
-        model.addConstr(n[i] - c[i] <= M * e_cn[i])
-        model.addConstr(c[i] - l[i] <= M * e_cl[i])
-        model.addConstr(l[i] - c[i] <= M * e_cl[i])
+        model.addConstr(c[i] - m[i] <= M * e_cm[i], name='orientation_selection_cm_0')
+        model.addConstr(m[i] - c[i] <= M * e_cm[i], name='orientation_selection_cm_1')
+        model.addConstr(c[i] - n[i] <= M * e_cn[i], name='orientation_selection_cn_0')
+        model.addConstr(n[i] - c[i] <= M * e_cn[i], name='orientation_selection_cm_1')
+        model.addConstr(c[i] - l[i] <= M * e_cl[i], name='orientation_selection_cl_0')
+        model.addConstr(l[i] - c[i] <= M * e_cl[i], name='orientation_selection_cl_1')
 
-        model.addConstr(e_am[i] + e_an[i] + e_al[i] == 2)
-        model.addConstr(e_bm[i] + e_bn[i] + e_bl[i] == 2)
-        model.addConstr(e_cm[i] + e_cn[i] + e_cl[i] == 2)
-        model.addConstr(e_am[i] + e_bm[i] + e_cm[i] == 2)
-        model.addConstr(e_an[i] + e_bn[i] + e_cn[i] == 2)
-        model.addConstr(e_al[i] + e_bl[i] + e_cl[i] == 2)
+        model.addConstr(e_am[i] + e_an[i] + e_al[i] == 2, name='orientation_selection_sum_a')
+        model.addConstr(e_bm[i] + e_bn[i] + e_bl[i] == 2, name='orientation_selection_sum_b')
+        model.addConstr(e_cm[i] + e_cn[i] + e_cl[i] == 2, name='orientation_selection_sum_c')
+        model.addConstr(e_am[i] + e_bm[i] + e_cm[i] == 2, name='orientation_selection_sum_m')
+        model.addConstr(e_an[i] + e_bn[i] + e_cn[i] == 2, name='orientation_selection_sum_n')
+        model.addConstr(e_al[i] + e_bl[i] + e_cl[i] == 2, name='orientation_selection_sum_l')
         
         # non-overlapping
         for j in range(i+1, n_item):
-            model.addConstr(x[j] - x[i] - a[i] >= -M * o_x[0, i, j])
-            model.addConstr(x[i] - x[j] - a[j] >= -M * o_x[1, i, j])
-            model.addConstr(y[j] - y[i] - b[i] >= -M * o_y[0, i, j])
-            model.addConstr(y[i] - y[j] - b[j] >= -M * o_y[1, i, j])
-            model.addConstr(z[j] - z[i] - c[i] >= -M * o_z[0, i, j])
-            model.addConstr(z[i] - z[j] - c[j] >= -M * o_z[1, i, j])
-            model.addConstr(o_x[0, i, j] + o_x[1, i, j] + o_y[0, i, j] + o_y[1, i, j] + o_z[0, i, j] + o_z[1, i, j] <= 5)
+            model.addConstr(x[j] - x[i] - a[i] >= -M * o_x[0, i, j], name='overlapping_x_0')
+            model.addConstr(x[i] - x[j] - a[j] >= -M * o_x[1, i, j], name='overlapping_x_1')
+            model.addConstr(y[j] - y[i] - b[i] >= -M * o_y[0, i, j], name='overlapping_y_0')
+            model.addConstr(y[i] - y[j] - b[j] >= -M * o_y[1, i, j], name='overlapping_y_1')
+            model.addConstr(z[j] - z[i] - c[i] >= -M * o_z[0, i, j], name='overlapping_z_0')
+            model.addConstr(z[i] - z[j] - c[j] >= -M * o_z[1, i, j], name='overlapping_z_1')
+            model.addConstr(o_x[0, i, j] + o_x[1, i, j] + o_y[0, i, j] + o_y[1, i, j] + o_z[0, i, j] + o_z[1, i, j] <= 5, name='overlapping_sum')
             
         # max height
-        model.addConstr(max_height >= z[i] + c[i], 'max_height')
+        model.addConstr(max_height >= z[i] + c[i], name='max_height')
+
+    model.optimize()
+
+    # ---------------------------------------- GRAVITY ----------------------------------------
+
+    # fixed = [False] * n_item
+    # for i in range(n_item):
+        
+    #     # find the highest non-fixed item
+    #     max_height_id = None
+    #     max_height_cur = 0
+    #     for j in range(n_item):
+    #         if (fixed[j] == False) and (z[j].x + c[j].x > max_height_cur):
+    #             max_height_cur = z[j].x + c[j].x
+    #             max_height_id = j
+    #     fixed[max_height_id] = True
+        
+    #     # add/remove constraint
+    
+    # for constr in model.getConstrs():
+    #     print(constr.ConstrName)
+        
 
     # ---------------------------------------- RESULT ----------------------------------------
     
-    model.optimize()
     print("\ntime: ", process_time(), "sec")
 
     ret_x, ret_y, ret_z, orientation = None, None, None, None
     if model.Status == GRB.OPTIMAL:
-        print('\nMax Height = %g' % model.objVal)
+        print('Max Height = %g' % model.objVal)
 
         # position
         getValue = lambda var: var.x
@@ -228,4 +242,5 @@ def packing(container_size, item_size, enlarge=False):
 
 item_info = packing(container_size, item_size, enlarge=False)
 for item in item_info:
-    print(item)
+    seq, x, y, z, [o1, o2, o3] = item
+    print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
