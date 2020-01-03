@@ -3,8 +3,6 @@ from gurobipy import GRB
 from time import process_time
 from functools import cmp_to_key
 
-# TODO: add gravity
-
 margin = 5
 container_size = [10, 20, 100]
 item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]
@@ -20,9 +18,9 @@ def compare(item1, item2):
     [seq1, x1, y1, z1, ori1] = item1
     [seq2, x2, y2, z2, ori2] = item2
     bool2int = lambda b: 1 if b else -1
-    if z1 != z2:
+    if abs(z1 - z2) > 0.1:
         return bool2int(z1 > z2)
-    elif x1 != x2:
+    elif abs(x1 - x2) > 0.1:
         return bool2int(x1 > x2)
     else:
         return bool2int(y1 > y2)
