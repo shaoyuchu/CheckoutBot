@@ -4,13 +4,65 @@ from time import process_time
 
 # TODO: enlarge items, extract xyzabc
 
-# INPUT
-# container_size = [x, y, z]
-# item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
-
 margin = 5
 container_size = [2, 2, 10]
 item_size = [[2, 2, 1], [2, 1, 1], [2, 1, 2]]
+
+def extractPose(variables):
+    values = {'x' : [],
+              'y' : [],
+              'z' : [],
+              'e_am' : [],
+              'e_an' : [],
+              'e_al' : [],
+              'e_bm' : [],
+              'e_bn' : [],
+              'e_bl' : [],
+              'e_cm' : [],
+              'e_cn' : [],
+              'e_cl' : [],}
+    
+    for var in variables:
+        var_name = var.varName.split('[')[0]
+        if var_name in values:
+            values[var_name].append(var.x)
+    
+    orientation = []
+    n_item = len(values['x'])
+    for i in range(n_item):
+        ori = []
+        # longest, m
+        if values['e_am'][i] == 0:
+            ori.append('x')
+        elif values['e_bm'][i] == 0:
+            ori.append('y')
+        elif values['e_cm'][i] == 0:
+            ori.append('z')
+
+        # middle, n
+        if values['e_an'][i] == 0:
+            ori.append('x')
+        elif values['e_bn'][i] == 0:
+            ori.append('y')
+        elif values['e_cn'][i] == 0:
+            ori.append('z')
+
+        # shortest, l
+        if values['e_al'][i] == 0:
+            ori.append('x')
+        elif values['e_bl'][i] == 0:
+            ori.append('y')
+        elif values['e_cl'][i] == 0:
+            ori.append('z')
+
+        orientation.append(ori)
+
+    return values['x'], values['y'], values['z'], orientation
+
+
+# INPUT
+# container_size = [x, y, z]
+# item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
 
 def packing(container_size, item_size):
 
@@ -126,45 +178,11 @@ def packing(container_size, item_size):
     model.optimize()
     print("\ntime: ", process_time(), "sec")
 
+    ret_x, ret_y, ret_z, orientation = None, None, None, None
     if model.Status == GRB.OPTIMAL:
         print('\nMax Height = %g' % model.objVal)
+        ret_x, ret_y, ret_z, orientation = extractPose(model.getVars())
 
-        # get position: x, y, z
-        getValue = lambda var: var.x
-        ret_x = list(map(getValue, x.values()))
-        ret_y = list(map(getValue, y.values()))
-        ret_z = list(map(getValue, z.values()))
-        
-        # get orientation: a, b, c mapping m, n, l
-        orientation = []
-
-        for i in range(n_item):
-            ori = []
-            # longest, m
-            if e_am[i].x == 0:
-                ori.append('x')
-            elif e_bm[i].x == 0:
-                ori.append('y')
-            elif e_cm[i].x == 0:
-                ori.append('z')
-
-            # middle, n
-            if e_an[i].x == 0:
-                ori.append('x')
-            elif e_bn[i].x == 0:
-                ori.append('y')
-            elif e_cn[i].x == 0:
-                ori.append('z')
-
-            # shortest, l
-            if e_al[i].x == 0:
-                ori.append('x')
-            elif e_bl[i].x == 0:
-                ori.append('y')
-            elif e_cl[i].x == 0:
-                ori.append('z')
-
-            orientation.append(ori)
     return ret_x, ret_y, ret_z, orientation
 
 
