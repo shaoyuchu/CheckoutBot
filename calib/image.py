@@ -112,7 +112,7 @@ def take_pictures():
         cv2.imshow('Contours', drawing)
         if cv2.waitKey() == ord('q'):
             cv2.destroyWindow('raw')
-            return mc_filtered, principal_angle, bounding_boxes, actual_legnth_of_boxes
+            return mc_filtered, principal_angle
         
     return
 
