@@ -224,11 +224,7 @@ def packing(container_size, item_size, enlarge=False):
 
 
 # OUTPUT
-# (centroid) x, y, z, orientation
-# x = [x1, x2, x3, ...]
-# y = [y1, y2, y3, ...]
-# z = [z1, z3, z3, ...]
-# orientation = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
+# [(serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), (serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), ...]
 
 item_info = packing(container_size, item_size, enlarge=False)
 for item in item_info:
