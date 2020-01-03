@@ -2,10 +2,12 @@ import cvxpy as cp
 import numpy as np
 from time import process_time
 
+# TODO: fragility, gravity
+
 # ---------------------------------------- PARAMETERS ---------------------------------------- 
 
 #   container dimensions
-A = 3
+A = 2
 B = 1
 C = 1
 
@@ -31,23 +33,23 @@ b = cp.Variable(n_item)
 c = cp.Variable(n_item)
 
 #   non-overlapping constraint variables
-o1 = cp.Variable((n_item, n_item), integer=True)
-o2 = cp.Variable((n_item, n_item), integer=True)
-o3 = cp.Variable((n_item, n_item), integer=True)
-o4 = cp.Variable((n_item, n_item), integer=True)
-o5 = cp.Variable((n_item, n_item), integer=True)
-o6 = cp.Variable((n_item, n_item), integer=True)
+o_x1 = cp.Variable((n_item, n_item), integer=True)
+o_x2 = cp.Variable((n_item, n_item), integer=True)
+o_y1 = cp.Variable((n_item, n_item), integer=True)
+o_y2 = cp.Variable((n_item, n_item), integer=True)
+o_z1 = cp.Variable((n_item, n_item), integer=True)
+o_z2 = cp.Variable((n_item, n_item), integer=True)
 
 #   orientation-selection constraint variables
-e11 = cp.Variable(n_item, integer=True)
-e12 = cp.Variable(n_item, integer=True)
-e13 = cp.Variable(n_item, integer=True)
-e21 = cp.Variable(n_item, integer=True)
-e22 = cp.Variable(n_item, integer=True)
-e23 = cp.Variable(n_item, integer=True)
-e31 = cp.Variable(n_item, integer=True)
-e32 = cp.Variable(n_item, integer=True)
-e33 = cp.Variable(n_item, integer=True)
+e_am = cp.Variable(n_item, integer=True)
+e_an = cp.Variable(n_item, integer=True)
+e_al = cp.Variable(n_item, integer=True)
+e_bm = cp.Variable(n_item, integer=True)
+e_bn = cp.Variable(n_item, integer=True)
+e_bl = cp.Variable(n_item, integer=True)
+e_cm = cp.Variable(n_item, integer=True)
+e_cn = cp.Variable(n_item, integer=True)
+e_cl = cp.Variable(n_item, integer=True)
 
 #   max-height variable
 max_height = cp.Variable()
@@ -57,39 +59,39 @@ max_height = cp.Variable()
 constraints = []
 for i in range(n_item):
 
-    # container size constraint
+    # # container size constraint
     constraints += [0 <= x[i], 0 <= y[i], 0 <= z[i]]
     constraints += [x[i] <= A - a[i], y[i] <= B - b[i], z[i] <= C - c[i]]
 
-    # orientation-selection constraint
-    constraints += [a[i] - m[i] <= M * e11[i], m[i] - a[i] <= M * e11[i]]
-    constraints += [a[i] - n[i] <= M * e12[i], n[i] - a[i] <= M * e12[i]]
-    constraints += [a[i] - l[i] <= M * e13[i], l[i] - a[i] <= M * e13[i]]
-    constraints += [b[i] - m[i] <= M * e21[i], m[i] - b[i] <= M * e21[i]]
-    constraints += [b[i] - n[i] <= M * e22[i], n[i] - b[i] <= M * e22[i]]
-    constraints += [b[i] - l[i] <= M * e23[i], l[i] - b[i] <= M * e23[i]]
-    constraints += [c[i] - m[i] <= M * e31[i], m[i] - c[i] <= M * e31[i]]
-    constraints += [c[i] - n[i] <= M * e32[i], n[i] - c[i] <= M * e32[i]]
-    constraints += [c[i] - l[i] <= M * e33[i], l[i] - c[i] <= M * e33[i]]
-    constraints += [e11[i] + e12[i] + e13[i] == 2, e21[i] + e22[i] + e23[i] == 2, e31[i] + e32[i] + e33[i] == 2]
-    constraints += [e11[i] + e21[i] + e31[i] == 2, e12[i] + e22[i] + e32[i] == 2, e13[i] + e23[i] + e33[i] == 2]
+    # # orientation-selection constraint
+    constraints += [a[i] - m[i] <= M * e_am[i], m[i] - a[i] <= M * e_am[i]]
+    constraints += [a[i] - n[i] <= M * e_an[i], n[i] - a[i] <= M * e_an[i]]
+    constraints += [a[i] - l[i] <= M * e_al[i], l[i] - a[i] <= M * e_al[i]]
+    constraints += [b[i] - m[i] <= M * e_bm[i], m[i] - b[i] <= M * e_bm[i]]
+    constraints += [b[i] - n[i] <= M * e_bn[i], n[i] - b[i] <= M * e_bn[i]]
+    constraints += [b[i] - l[i] <= M * e_bl[i], l[i] - b[i] <= M * e_bl[i]]
+    constraints += [c[i] - m[i] <= M * e_cm[i], m[i] - c[i] <= M * e_cm[i]]
+    constraints += [c[i] - n[i] <= M * e_cn[i], n[i] - c[i] <= M * e_cn[i]]
+    constraints += [c[i] - l[i] <= M * e_cl[i], l[i] - c[i] <= M * e_cl[i]]
+    constraints += [e_am[i] + e_an[i] + e_al[i] == 2, e_bm[i] + e_bn[i] + e_bl[i] == 2, e_cm[i] + e_cn[i] + e_cl[i] == 2]
+    constraints += [e_am[i] + e_bm[i] + e_cm[i] == 2, e_an[i] + e_bn[i] + e_cn[i] == 2, e_al[i] + e_bl[i] + e_cl[i] == 2]
 
     for j in range(i + 1, n_item):
         
         # non-overlapping constraint
-        constraints += [x[j] - x[i] - a[i] >= -M * o1[i, j]]
-        constraints += [x[i] - x[j] - a[j] >= -M * o2[i, j]]
-        constraints += [y[j] - y[i] - b[i] >= -M * o3[i, j]]
-        constraints += [y[i] - y[j] - b[j] >= -M * o4[i, j]]
-        constraints += [z[j] - z[i] - c[i] >= -M * o5[i, j]]
-        constraints += [z[i] - z[j] - c[j] >= -M * o6[i, j]]
-        constraints += [o1[i, j] + o2[i, j] + o3[i, j] + o4[i, j] + o5[i, j] + o6[i, j] <= 5]
+        constraints += [x[j] - x[i] - a[i] >= -M * o_x1[i, j]]
+        constraints += [x[i] - x[j] - a[j] >= -M * o_x2[i, j]]
+        constraints += [y[j] - y[i] - b[i] >= -M * o_y1[i, j]]
+        constraints += [y[i] - y[j] - b[j] >= -M * o_y2[i, j]]
+        constraints += [z[j] - z[i] - c[i] >= -M * o_z1[i, j]]
+        constraints += [z[i] - z[j] - c[j] >= -M * o_z2[i, j]]
+        constraints += [o_x1[i, j] + o_x2[i, j] + o_y1[i, j] + o_y2[i, j] + o_z1[i, j] + o_z2[i, j] <= 5]
 
-        # boolean variable constraint
-        constraints += [o1[i, j] <= 1, o2[i, j] <= 1, o3[i, j] <= 1, o4[i, j] <= 1, o5[i, j] <= 1, o6[i, j] <= 1]
-        constraints += [o1[i, j] >= 0, o2[i, j] >= 0, o3[i, j] >= 0, o4[i, j] >= 0, o5[i, j] >= 0, o6[i, j] >= 0]
-    constraints += [e11[i] <= 1, e12[i] <= 1, e13[i] <= 1, e21[i] <= 1, e22[i] <= 1, e23[i] <= 1, e31[i] <= 1, e32[i] <= 1, e33[i] <= 1]
-    constraints += [e11[i] >= 0, e12[i] >= 0, e13[i] >= 0, e21[i] >= 0, e22[i] >= 0, e23[i] >= 0, e31[i] >= 0, e32[i] >= 0, e33[i] >= 0]
+        # integer variable constraint
+        constraints += [o_x1[i, j] >= 0, o_x2[i, j] >= 0, o_y1[i, j] >= 0, o_y2[i, j] >= 0, o_z1[i, j] >= 0, o_z2[i, j] >= 0]
+        constraints += [o_x1[i, j] <= 1, o_x2[i, j] <= 1, o_y1[i, j] <= 1, o_y2[i, j] <= 1, o_z1[i, j] <= 1, o_z2[i, j] <= 1]
+    constraints += [e_am[i] >= 0, e_an[i] >= 0, e_al[i] >= 0, e_bm[i] >= 0, e_bn[i] >= 0, e_bl[i] >= 0, e_cm[i] >= 0, e_cn[i] >= 0, e_cl[i] >= 0]
+    constraints += [e_am[i] <= 1, e_an[i] <= 1, e_al[i] <= 1, e_bm[i] <= 1, e_bn[i] <= 1, e_bl[i] <= 1, e_cm[i] <= 1, e_cn[i] <= 1, e_cl[i] <= 1]
 
     # max-height constraint
     constraints += [max_height >= z[i] + c[i]]
@@ -99,8 +101,11 @@ for i in range(n_item):
 obj = cp.Minimize(max_height)
 prob = cp.Problem(obj, constraints)
 prob.solve()
+
+# print result
 print("status: ", prob.status)
 print("time: ", process_time(), "sec")
+
 if max_height.value != None:
     print("Optimal maximum height: ", '%.1f'%max_height.value)
     for i in range(n_item):
