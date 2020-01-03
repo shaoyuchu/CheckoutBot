@@ -5,9 +5,16 @@ from time import process_time
 # TODO: enlarge items, extract xyzabc
 
 margin = 5
-container_size = [2, 2, 10]
+container_size = [10, 10, 100]
 item_size = [[2, 2, 1], [2, 1, 1], [2, 1, 2]]
 
+def enlargeItemSize(item_size):
+    n_size = len(item_size[0])
+    for i in range(3):
+        for j in range(n_size):
+            item_size[i][j] += margin
+    return item_size
+    
 def extractPose(variables):
     values = {'x' : [],
               'y' : [],
@@ -64,7 +71,7 @@ def extractPose(variables):
 # container_size = [x, y, z]
 # item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
 
-def packing(container_size, item_size):
+def packing(container_size, item_size, enlarge=False):
 
     # ---------------------------------------- MODEL ---------------------------------------- 
 
@@ -78,6 +85,10 @@ def packing(container_size, item_size):
     C = container_size[2]
 
     # item dimensions
+    if enlarge:
+        enlargeItemSize(item_size)
+    print(item_size)
+
     m = item_size[0]
     n = item_size[1]
     l = item_size[2]
@@ -193,7 +204,7 @@ def packing(container_size, item_size):
 # z = [z1, z3, z3, ...]
 # ori = [['x', 'y', 'z'], ['y', 'z', 'x'], ['z', 'x', 'y']]
 
-x, y, z, ori = packing(container_size, item_size)
+x, y, z, ori = packing(container_size, item_size, enlarge=True)
 print('x: ', x)
 print('y: ', y)
 print('z: ', z)
