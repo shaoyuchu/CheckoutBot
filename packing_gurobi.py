@@ -2,11 +2,8 @@ import gurobipy as gp
 from gurobipy import GRB
 from time import process_time
 from functools import cmp_to_key
+from param import *
 from visualize import visualize
-
-margin = 5
-container_size = [150, 95, 80]
-item_size = [[50, 50, 60, 60, 55, 40], [50, 45, 45, 50, 50, 30], [50, 30, 30, 30, 35, 30]]
 
 def enlargeItemSize(item_size):
     n_size = len(item_size[0])
@@ -255,7 +252,9 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
 # OUTPUT
 # [(serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), (serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), ...]
 
-item_info = packing(container_size, item_size, enlarge=True, visualization=True)
-for item in item_info:
-    seq, x, y, z, [o1, o2, o3] = item
-    print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
+if __name__ == "__main__":
+
+    item_info = packing(container_size, item_size, enlarge=False)
+    for item in item_info:
+        seq, x, y, z, [o1, o2, o3] = item
+        print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])

@@ -6,6 +6,9 @@ import math
 from image import take_pictures, mapping
 from connect import connect2Arm
 from detect import *
+from trace import *
+from helper import *
+from packing_gurobi import *
 
 # json implementation, fast
 # import json
@@ -21,8 +24,11 @@ from detect import *
 
 A = np.load('./calibration_data/img2actual.npy')
 pixel2mm = np.load('./calibration_data/pixel2mm.npy')
+
 number_of_objects = 1
 step_by_step = True
+
+
 
 
 def checkPoint(val):
@@ -32,10 +38,16 @@ def checkPoint(val):
 
 
 if __name__ == "__main__":
-    
-    mc, p_angle = take_pictures()
+    pixel2mm -= 0.1
+    mc, p_angle, bbox, actual_length_box = take_pictures()
+    print(bbox)
+
     s = connect2Arm()
-    
+    inter_pose_register = {}
+    xs = []; ys = []; zs = []
+    number_of_objects = len(mc)
+    isCube = []
+    print("Object count: {}".format(number_of_objects))
     for i in range(0, number_of_objects):
         
         # compute the actual position
@@ -50,7 +62,7 @@ if __name__ == "__main__":
         
 
         # move down to reach the target
-        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -185 ' + str(-p_angle[i]) + ' 0 180\n'
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -190 ' + str(-p_angle[i]) + ' 0 180\n'
         checkPoint(val)
         s.sendall(val.encode('ascii'))
         
@@ -59,12 +71,147 @@ if __name__ == "__main__":
         s.sendall(close_grip.encode('ascii'))
         
 
-        detect(i, s)
+        face, grabbing, SN = detect(i, s, actual_length_box[i])
+        inter_pose_register[i] = SN
+        object_size = GetSizeBySN(SN)
+        xs.append(object_size[0]); ys.append(object_size[1]); zs.append(object_size[2])
+        print("face: {} grabbing {}".format(face, grabbing))
+        traceRoute(s,i, SN, face, grabbing)
+        
+        # ==========================================
+        # ReCalibrating the centroid of object 
+        # with the manipulator
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+         # move down to reach the target
+        
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -200 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall("GOHOME\n".encode('ascii'))
+        s.sendall("MOVJ # # # # # 0\n".encode('ascii'))
+        input("press enter when arm is at home")
+        mc_temp, p_angle__ , bbox__, actual__ = take_pictures()
+
+        for centroid in mc_temp:
+
+            img_p = [[centroid[0]], [centroid[1]], [1]]
+            actual_p = np.matmul(A, img_p)
+            actual_p = np.reshape(actual_p, 3)
+            x = actual_p[0]
+            y = actual_p[1]
+            dist = np.sqrt( (p_hat[0] - x)**2 + (p_hat[1] - y)**2)
+            if dist < 20:
+                p_hat[0] = x
+                p_hat[1] = y
+                break
+        # ==========================================
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        
+
+        # move down to reach the target
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -205 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        
+
+        # close the gripper
+        s.sendall(close_grip.encode('ascii'))
+        s.sendall(rise_pose.encode('ascii'))
+        s.sendall(inter_pos_rise[i].encode('ascii'))
+        s.sendall(inter_pos[i].encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall(inter_pos_rise[i].encode('ascii'))
+        s.sendall("GOHOME\n".encode('ascii'))
+
+        
+
+    packing_result = packing(container_size, [xs, ys, zs])
+    # packing result returns
+    # index of interpose, (x, y, z), mapping for a, b, c to which axis.
+    # 3 1.0 10.5 0.0 ['y', 'x', 'z']
+    # 0 1.5 13.5 0.0 ['z', 'y', 'x']
+    input("****** Intermediate phase completed!...")
+    for item in packing_result:
+        seq, x, y, z, [o1, o2, o3] = item
+        s.sendall(inter_pos_rise[seq].encode('ascii'))
+        s.sendall(inter_pos[seq].encode('ascii'))
+        # ======================================================== manipulate the object
+        # man pose here
+        if inter_pose_register[seq] != 18 and inter_pose_register[seq] != 19:
+            s.sendall(close_grip.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            s.sendall(temp_pose.encode('ascii'))
+            s.sendall(man_pose_J_adj.encode('ascii'))
+            input("Get ready.....")
+            GetReady(s, ['y', 'z', 'x'])
+        # ======================================================== calibrate
+
+        # ReCalibrating the centroid of object 
+        # with the manipulator
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+         # move down to reach the target
+        
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -190 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall("GOHOME\n".encode('ascii'))
+        s.sendall("MOVJ # # # # # 0\n".encode('ascii'))
+        input("press enter when arm is at home")
+        mc_temp, p_angle__ , bbox__, actual__ = take_pictures()
+
+        for centroid in mc_temp:
+
+            img_p = [[centroid[0]], [centroid[1]], [1]]
+            actual_p = np.matmul(A, img_p)
+            actual_p = np.reshape(actual_p, 3)
+            x = actual_p[0]
+            y = actual_p[1]
+            dist = np.sqrt( (p_hat[0] - x)**2 + (p_hat[1] - y)**2)
+            if dist < 20:
+                p_hat[0] = x
+                p_hat[1] = y
+                break
+        # ==========================================
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' 0 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        
+
+        # move down to reach the target
+        val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -200 ' + '90 0 180\n'
+        checkPoint(val)
+        s.sendall(val.encode('ascii'))
+        
+
+        # close the gripper
+        s.sendall(close_grip.encode('ascii'))
+        s.sendall(rise_pose.encode('ascii'))
+        
+        # # packing pose
+        s.sendall(packing_pose.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        input()
+        s.sendall(rise_packing.encode('ascii'))
+        s.sendall(close_grip.encode('ascii'))
+        input()
+        s.sendall(pushing_pose.encode('ascii'))
+        input()
+        # # pushing pose
+        # # push
+        # # GOHOME
+        # input("")
+    
 
     # go home
     go_home = 'GOHOME\n'
     s.sendall(go_home.encode('ascii'))
-    
-    print(data)
-
+    s.sendall(open_grip.encode('ascii'))
     s.close()
