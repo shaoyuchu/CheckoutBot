@@ -8,7 +8,8 @@ def qrcodeReader(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     qrcodes = decode(image)
     for decodedObject in qrcodes:
-        points = decodedObject.polygon
+        print(decodedObject)
+        points = decodedObject.rect
         pts = np.array(points, np.int32)
         pts = pts.reshape((-1, 1, 2))
         cv2.polylines(image, [pts], True, (0, 255, 0), 3)

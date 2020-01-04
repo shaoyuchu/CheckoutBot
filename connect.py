@@ -4,7 +4,7 @@ import socket
 
 
 def connect2Arm():
-    TCP_IP = "169.254.75.95"
+    TCP_IP = "169.254.222.242"
     TCP_PORT = 8000
     BUFFER_SIZE = 1024
     MESSAGE = "Hello, World!"

@@ -17,10 +17,7 @@ def traceRoute(s, ind, SN, face, grabbing):
         # 7 5
         if grabbing == face[0]:
             print("***** 1-1 *****")
-            s.sendall(inter_pos[ind].encode('ascii'))
-            input("check this face...")
-            s.sendall(open_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
+            
             # grabbing 7
             # do nothing
         else:
@@ -32,10 +29,7 @@ def traceRoute(s, ind, SN, face, grabbing):
             s.sendall(man_pose_inv.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
-            s.sendall(inter_pos[ind].encode('ascii'))
-            s.sendall(open_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-
+            
             # grabbing 5
             # release, rotate, grab
             pass
@@ -56,10 +50,7 @@ def traceRoute(s, ind, SN, face, grabbing):
             s.sendall(woman_pose.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
-            s.sendall(inter_pos[ind].encode('ascii'))
-            s.sendall(open_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-
+            
             pass
         else:
             print("***** 2-2 *****")
@@ -70,9 +61,6 @@ def traceRoute(s, ind, SN, face, grabbing):
             s.sendall(temp_pose.encode('ascii'))
             s.sendall(woman_pose.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-            s.sendall(inter_pos[ind].encode('ascii'))
-            s.sendall(open_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
             # release, rise, rotate, aprroach, grab, and do grabbing 5
             pass
@@ -90,17 +78,14 @@ def traceRoute(s, ind, SN, face, grabbing):
             s.sendall(woman_pose.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
-            s.sendall(man_pose_J.encode('ascii'))
+            s.sendall(man_pose_J_adj.encode('ascii'))
             s.sendall(open_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
             s.sendall(Rotate_gripper_90.encode('ascii'))
-            s.sendall(man_pose_inv.encode('ascii'))
+            s.sendall(man_pose_inv_adj.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
-            s.sendall(inter_pos[ind].encode('ascii'))
-            s.sendall(open_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-
+            
         else:
             print("***** 3-2 *****")
             s.sendall(man_pose_J.encode('ascii'))
@@ -110,16 +95,95 @@ def traceRoute(s, ind, SN, face, grabbing):
             s.sendall(woman_pose.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
+            s.sendall(man_pose_J_adj.encode('ascii'))
+            s.sendall(open_grip.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            s.sendall(Rotate_gripper_90.encode('ascii'))
+            s.sendall(man_pose_inv_adj.encode('ascii'))
+            s.sendall(close_grip.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            # grabbing 3
+            # rotate to grab 7, do the rest as grabbing 7
+            pass
+
+def GetReady(s, matching):
+    # matching ['x', 'y', 'z']
+    # saying a should match to x axis, and so on.
+    # [a , b, c]
+    if matching[2] == 'z':
+        # easiest part
+        if matching[0] == 'y':
+            # no rotation
+            print("easiest, no rotation\n Done!.")
+            pass
+        else:
+            # rotate 90
+            print("rotate 90")
+            s.sendall(open_grip.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            s.sendall(Rotate_gripper_90.encode('ascii'))
+            s.sendall(man_pose_inv_adj.encode('ascii'))
+            s.sendall(close_grip.encode('ascii'))
+            
+            pass
+        s.sendall(rise_pose.encode('ascii'))
+        # go to packing pose
+    elif matching[0] == 'z':
+        # go to woman pose
+        # release, man pose
+        s.sendall(rise_pose.encode('ascii'))
+        s.sendall(temp_pose.encode('ascii'))
+        s.sendall(woman_pose.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall(temp_pose.encode('ascii'))
+        
+        if matching[1] == 'x':
+            # no rotation
             s.sendall(man_pose_J.encode('ascii'))
+            
+            print("z x")
+            pass
+        else:
+            s.sendall(man_pose_J.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            s.sendall(Rotate_gripper_90.encode('ascii'))
+            s.sendall(man_pose_inv.encode('ascii'))
+            # rotate 90
+            print("z x 90")
+            pass
+        s.sendall(close_grip.encode('ascii'))
+        s.sendall(rise_pose.encode('ascii'))
+        # go to packing pose
+    else:
+        s.sendall()
+        # go to man pose
+        s.sendall(Rotate_gripper_90.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall(rise_pose.encode('ascii'))
+        s.sendall(temp_pose.encode('ascii'))
+        s.sendall(woman_pose.encode('ascii'))
+        s.sendall(close_grip.encode('ascii'))
+        s.sendall(temp_pose.encode('ascii'))
+        s.sendall(man_pose_J.encode('ascii'))
+        
+        # rotate 90
+        # woman pose
+        if matching[0] == 'x':
+            # do nothing
+            
+            print("x z")
+            pass
+        else:
+            # rotate 90
+            print("x z 90")
+            
             s.sendall(open_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
             s.sendall(Rotate_gripper_90.encode('ascii'))
             s.sendall(man_pose_inv.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-            s.sendall(inter_pos[ind].encode('ascii'))
-            s.sendall(open_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-            # grabbing 3
-            # rotate to grab 7, do the rest as grabbing 7
             pass
+        # go to packing pose.
+
+        s.sendall(rise_pose.encode('ascii'))
+    pass

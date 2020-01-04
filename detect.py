@@ -21,11 +21,12 @@ def qrcodeReader():
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         qrcodes = decode(image)
-        for decodedObject in qrcodes:
-            points = decodedObject.polygon
-            pts = np.array(points, np.int32)
-            pts = pts.reshape((-1, 1, 2))
-            cv2.polylines(image, [pts], True, (0, 255, 0), 3)
+        # for decodedObject in qrcodes:
+        #     print(decodedObject)
+        #     points = decodedObject.polygon
+        #     pts = np.array(points, np.int32)
+        #     pts = pts.reshape((-1, 1, 2))
+        #     cv2.polylines(image, [pts], True, (0, 255, 0), 3)
         data = map(lambda bc: bc.data.decode("utf-8"), qrcodes)
         data = list(data)
         print("i = %d" % i)
