@@ -155,7 +155,6 @@ def GetReady(s, matching):
         s.sendall(rise_pose.encode('ascii'))
         # go to packing pose
     else:
-        s.sendall()
         # go to man pose
         s.sendall(Rotate_gripper_90.encode('ascii'))
         s.sendall(open_grip.encode('ascii'))

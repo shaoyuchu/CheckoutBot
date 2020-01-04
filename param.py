@@ -26,7 +26,7 @@ inter_pos_rise = ['MOVP -558 -72 0 0 0 180\n',
 # Need to consider the object size and dimension
 
 packing_pose = "MOVP 495.41 -75.68 -245 -0.54 2.69 -178.876\n"
-rise_packing = "MOVP # # -195 # # #\n"
+rise_packing = "MOVP # # 0 # # #\n"
 pushing_pose = "MOVP 495.41 23.75 -245 # # #\n"
 calib_pose = "MOVP 0 430 -195 91.382 2.781 181.137\n"
 # The calib_pose is of the height of the flattest object's centroid height.
@@ -34,12 +34,12 @@ calib_pose = "MOVP 0 430 -195 91.382 2.781 181.137\n"
 man_pose_J = "MOVJ 40.5 -82.33 40.63 0.02 -50.6 175.24\n"
 man_pose_J_adj = "MOVJ 40.5 -84.5 41.3 0.02 -47.3 175.24\n"
 man_pose_inv = "MOVJ 40.5 -82.33 40.63 0.02 -50.6 #\n"
-man_pose_inv_adj = "MOVJ 40.5 -84.5 41.3 0.02 -47.3 #\n"
+man_pose_inv_adj = "MOVJ 40.5 -82.5 38.15 0.02 -47.3 #\n"
 # 40.5 -82.32 40.62 0 -47.71 85.25
 Rotate_gripper_90 = "MOVJ # # # # # 85.25\n"
 rise_pose = "MOVP # # -50 # # #\n"
 temp_pose = "MOVJ 40.5 -33.8 -22.15 0 -33.53 179.26\n"
-woman_pose = 'MOVJ 38.99 -79.98 -5.82 -5.09 77.5 179.25\n'
+woman_pose = 'MOVJ 40 -79.98 -5.82 -5.09 77.5 179.25\n'
 
 close_grip = 'OUTPUT 48 ON\n'
 open_grip = 'OUTPUT 48 OFF\n'
