@@ -2,6 +2,7 @@ import gurobipy as gp
 from gurobipy import GRB
 from time import process_time
 from functools import cmp_to_key
+from visualize import visualize
 
 margin = 5
 container_size = [150, 95, 80]
@@ -72,7 +73,7 @@ def extractOrientation(variables):
 # container_size = [x, y, z]
 # item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
 
-def packing(container_size, item_size, enlarge=False, print_info=False):
+def packing(container_size, item_size, enlarge=False, visualization=False):
 
     # ---------------------------------------- MODEL ---------------------------------------- 
 
@@ -222,18 +223,22 @@ def packing(container_size, item_size, enlarge=False, print_info=False):
         getValue = lambda var: var.x
         x_pos = list(map(getValue, x.values()))
         y_pos = list(map(getValue, y.values()))
+        z_pos = list(map(getValue, z.values()))
         a_len = list(map(getValue, a.values()))
         b_len = list(map(getValue, b.values()))
+        c_len = list(map(getValue, c.values()))
 
         ret_x = [x_pos + a_len/2 for x_pos, a_len in zip(x_pos, a_len)]
         ret_y = [y_pos + b_len/2 for y_pos, b_len in zip(y_pos, b_len)]
-        ret_z = list(map(getValue, z.values()))
+        ret_z = z_pos
 
         # orientation
         orientation = extractOrientation(model.getVars())
 
         # print position of all items
-        if print_info:
+        if visualization:
+            print("visulizing ", container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len)
+            # visualize(container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len)
             for i in range(n_item):
                 print(i)
                 print('%.1f'%x[i].x, "-", '%.1f'%(x[i].x + a[i].x))
@@ -250,7 +255,7 @@ def packing(container_size, item_size, enlarge=False, print_info=False):
 # OUTPUT
 # [(serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), (serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), ...]
 
-item_info = packing(container_size, item_size, enlarge=True, print_info=True)
+item_info = packing(container_size, item_size, enlarge=True, visualization=True)
 for item in item_info:
     seq, x, y, z, [o1, o2, o3] = item
     print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
