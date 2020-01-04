@@ -4,8 +4,8 @@ from time import process_time
 from functools import cmp_to_key
 
 margin = 5
-container_size = [10, 20, 100]
-item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]
+container_size = [150, 95, 80]
+item_size = [[50, 50, 60, 60, 55, 40], [50, 45, 45, 50, 50, 30], [50, 30, 30, 30, 35, 30]]
 
 def enlargeItemSize(item_size):
     n_size = len(item_size[0])
@@ -72,7 +72,7 @@ def extractOrientation(variables):
 # container_size = [x, y, z]
 # item_size = [[x1, x2, x3, ...], [y1, y2, y3, ...], [z1, z2, z3, ...]]
 
-def packing(container_size, item_size, enlarge=False):
+def packing(container_size, item_size, enlarge=False, print_info=False):
 
     # ---------------------------------------- MODEL ---------------------------------------- 
 
@@ -232,6 +232,14 @@ def packing(container_size, item_size, enlarge=False):
         # orientation
         orientation = extractOrientation(model.getVars())
 
+        # print position of all items
+        if print_info:
+            for i in range(n_item):
+                print(i)
+                print('%.1f'%x[i].x, "-", '%.1f'%(x[i].x + a[i].x))
+                print('%.1f'%y[i].x, "-", '%.1f'%(y[i].x + b[i].x))
+                print('%.1f'%z[i].x, "-", '%.1f'%(z[i].x + c[i].x))
+
         # sort by z, then x, then y
         item_info = list(zip(range(n_item), ret_x, ret_y, ret_z, orientation))
         item_info.sort(key=cmp_to_key(compare))
@@ -242,7 +250,7 @@ def packing(container_size, item_size, enlarge=False):
 # OUTPUT
 # [(serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), (serial#, centroid_x, centroid_y, bottom_z, ['z', 'x', 'y']), ...]
 
-item_info = packing(container_size, item_size, enlarge=False)
+item_info = packing(container_size, item_size, enlarge=True, print_info=True)
 for item in item_info:
     seq, x, y, z, [o1, o2, o3] = item
     print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
