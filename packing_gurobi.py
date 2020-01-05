@@ -202,10 +202,14 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         constr_pair = list(zip(range(len(model.getConstrs())), model.getConstrs()))
         found = filter(lambda pair: pair[1].ConstrName == 'max_height_%d'%max_height_id, constr_pair)
         constr_id = list(found)[0][0]
+
         model.remove(model.getConstrs()[constr_id])
         model.addConstr(x[max_height_id] == x[max_height_id].x, name='fixed_x%d'%max_height_id)
         model.addConstr(y[max_height_id] == y[max_height_id].x, name='fixed_y%d'%max_height_id)
         model.addConstr(z[max_height_id] == z[max_height_id].x, name='fixed_z%d'%max_height_id)
+        model.addConstr(a[max_height_id] == a[max_height_id].x, name='fixed_a%d'%max_height_id)
+        model.addConstr(b[max_height_id] == b[max_height_id].x, name='fixed_b%d'%max_height_id)
+        model.addConstr(c[max_height_id] == c[max_height_id].x, name='fixed_c%d'%max_height_id)
 
         model.optimize()
 
@@ -239,7 +243,7 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         # visualize
         if visualization:
             seq = list(map(lambda item : item[0], item_info))
-            visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shrink_ratio=5)
+            visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shrink_ratio=1)
             for i in range(n_item):
                 print(i)
                 print('%.1f'%x[i].x, "-", '%.1f'%(x[i].x + a[i].x))
