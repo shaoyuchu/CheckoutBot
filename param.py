@@ -25,7 +25,9 @@ inter_pos_rise = ['MOVP -558 -72 0 0 0 180\n',
 # Box size 200mm 130mm
 # Need to consider the object size and dimension
 
-packing_pose = "MOVP 495.41 -75.68 -245 -0.54 2.69 -178.876\n"
+packing_pose_x = 520
+packing_pose_y = -302
+packing_pose = "MOVP {} {} -245 -0.54 2.69 -178.876\n"
 rise_packing = "MOVP # # 0 # # #\n"
 pushing_pose = "MOVP 495.41 23.75 -245 # # #\n"
 calib_pose = "MOVP 0 430 -195 91.382 2.781 181.137\n"
@@ -48,5 +50,5 @@ open_grip = 'OUTPUT 48 OFF\n'
 
 # packing gurobi
 margin = 5
-container_size = [180, 130, 100]
+container_size = [50, 140, 100]
 item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]

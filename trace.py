@@ -3,6 +3,7 @@ import numpy as np
 import queue
 from param import *
 import pandas as pd
+from helper import *
 
 # grabbing (int, int)
 
@@ -106,10 +107,15 @@ def traceRoute(s, ind, SN, face, grabbing):
             # rotate to grab 7, do the rest as grabbing 7
             pass
 
-def GetReady(s, matching):
+def GetReady(s, SN, matching):
     # matching ['x', 'y', 'z']
     # saying a should match to x axis, and so on.
     # [a , b, c]
+    size_of_box = GetSizeBySN(SN)
+    return_matching = 0
+    for i in range(len(matching)):
+        if matching[i] == 'y':
+            return_matching = size_of_box[i]
     if matching[2] == 'z':
         # easiest part
         if matching[0] == 'y':
@@ -185,4 +191,4 @@ def GetReady(s, matching):
         # go to packing pose.
 
         s.sendall(rise_pose.encode('ascii'))
-    pass
+    return return_matching
