@@ -49,6 +49,7 @@ open_grip = 'OUTPUT 48 OFF\n'
 # 7x5x2
 
 # packing gurobi
+
 margin = 5
 container_size = [50, 140, 100]
 item_size = [[3, 2, 1, 3, 4, 6, 9, 1, 8, 7], [3, 2, 1, 2, 8, 1, 7, 9, 10, 6], [3, 2, 1, 1, 2, 8, 1, 7, 9, 10]]
