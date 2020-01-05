@@ -37,7 +37,7 @@ def extractOrientation(variables):
     n_item = len(values['e_am'])
     for i in range(n_item):
         ori = []
-        # longest, m
+        # longest, M
         if values['e_am'][i] == 0:
             ori.append('x')
         elif values['e_bm'][i] == 0:
@@ -45,7 +45,7 @@ def extractOrientation(variables):
         elif values['e_cm'][i] == 0:
             ori.append('z')
 
-        # middle, n
+        # middle, N
         if values['e_an'][i] == 0:
             ori.append('x')
         elif values['e_bn'][i] == 0:
@@ -53,7 +53,7 @@ def extractOrientation(variables):
         elif values['e_cn'][i] == 0:
             ori.append('z')
 
-        # shortest, l
+        # shortest, L
         if values['e_al'][i] == 0:
             ori.append('x')
         elif values['e_bl'][i] == 0:
@@ -87,15 +87,15 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
     if enlarge:
         enlargeItemSize(item_size)
 
-    m = item_size[0]
-    n = item_size[1]
-    l = item_size[2]
+    M = item_size[0]
+    N = item_size[1]
+    L = item_size[2]
     
-    assert len(m) == len(n)
-    assert len(n) == len(l)
-    n_item = len(m)
+    assert len(M) == len(N)
+    assert len(N) == len(L)
+    n_item = len(M)
 
-    M = max(A, B, C) + max(max(m), max(n), max(l))
+    U = max(A, B, C) + max(max(M), max(N), max(L))
 
     # ---------------------------------------- VARIABLES ----------------------------------------
 
@@ -110,9 +110,9 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
     c = model.addVars(n_item, lb=0, name='c')
 
     # non-overlapping
-    o_x = model.addVars(2, n_item, n_item, vtype=GRB.BINARY, name='o_x')
-    o_y = model.addVars(2, n_item, n_item, vtype=GRB.BINARY, name='o_y')
-    o_z = model.addVars(2, n_item, n_item, vtype=GRB.BINARY, name='o_z')
+    o_x = model.addVars(n_item, n_item, vtype=GRB.BINARY, name='o_x')
+    o_y = model.addVars(n_item, n_item, vtype=GRB.BINARY, name='o_y')
+    o_z = model.addVars(n_item, n_item, vtype=GRB.BINARY, name='o_z')
 
     # orientation-selection
     e_am = model.addVars(n_item, vtype=GRB.BINARY, name='e_am')
@@ -141,26 +141,26 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         model.addConstr(z[i] <= C - c[i], name='in_container_z_%d'%i)
 
         # orientation selection
-        model.addConstr(a[i] - m[i] <= M * e_am[i], name='orientation_selection_am_0_%d'%i)
-        model.addConstr(m[i] - a[i] <= M * e_am[i], name='orientation_selection_am_1_%d'%i)
-        model.addConstr(a[i] - n[i] <= M * e_an[i], name='orientation_selection_an_0_%d'%i)
-        model.addConstr(n[i] - a[i] <= M * e_an[i], name='orientation_selection_an_1_%d'%i)
-        model.addConstr(a[i] - l[i] <= M * e_al[i], name='orientation_selection_al_0_%d'%i)
-        model.addConstr(l[i] - a[i] <= M * e_al[i], name='orientation_selection_al_1_%d'%i)
+        model.addConstr(a[i] - M[i] <= U * e_am[i], name='orientation_selection_am_0_%d'%i)
+        model.addConstr(M[i] - a[i] <= U * e_am[i], name='orientation_selection_am_1_%d'%i)
+        model.addConstr(a[i] - N[i] <= U * e_an[i], name='orientation_selection_an_0_%d'%i)
+        model.addConstr(N[i] - a[i] <= U * e_an[i], name='orientation_selection_an_1_%d'%i)
+        model.addConstr(a[i] - L[i] <= U * e_al[i], name='orientation_selection_al_0_%d'%i)
+        model.addConstr(L[i] - a[i] <= U * e_al[i], name='orientation_selection_al_1_%d'%i)
 
-        model.addConstr(b[i] - m[i] <= M * e_bm[i], name='orientation_selection_bm_0_%d'%i)
-        model.addConstr(m[i] - b[i] <= M * e_bm[i], name='orientation_selection_bm_1_%d'%i)
-        model.addConstr(b[i] - n[i] <= M * e_bn[i], name='orientation_selection_bn_0_%d'%i)
-        model.addConstr(n[i] - b[i] <= M * e_bn[i], name='orientation_selection_bn_1_%d'%i)
-        model.addConstr(b[i] - l[i] <= M * e_bl[i], name='orientation_selection_bl_0_%d'%i)
-        model.addConstr(l[i] - b[i] <= M * e_bl[i], name='orientation_selection_bl_0_%d'%i)
+        model.addConstr(b[i] - M[i] <= U * e_bm[i], name='orientation_selection_bm_0_%d'%i)
+        model.addConstr(M[i] - b[i] <= U * e_bm[i], name='orientation_selection_bm_1_%d'%i)
+        model.addConstr(b[i] - N[i] <= U * e_bn[i], name='orientation_selection_bn_0_%d'%i)
+        model.addConstr(N[i] - b[i] <= U * e_bn[i], name='orientation_selection_bn_1_%d'%i)
+        model.addConstr(b[i] - L[i] <= U * e_bl[i], name='orientation_selection_bl_0_%d'%i)
+        model.addConstr(L[i] - b[i] <= U * e_bl[i], name='orientation_selection_bl_0_%d'%i)
 
-        model.addConstr(c[i] - m[i] <= M * e_cm[i], name='orientation_selection_cm_0_%d'%i)
-        model.addConstr(m[i] - c[i] <= M * e_cm[i], name='orientation_selection_cm_1_%d'%i)
-        model.addConstr(c[i] - n[i] <= M * e_cn[i], name='orientation_selection_cn_0_%d'%i)
-        model.addConstr(n[i] - c[i] <= M * e_cn[i], name='orientation_selection_cm_1_%d'%i)
-        model.addConstr(c[i] - l[i] <= M * e_cl[i], name='orientation_selection_cl_0_%d'%i)
-        model.addConstr(l[i] - c[i] <= M * e_cl[i], name='orientation_selection_cl_1_%d'%i)
+        model.addConstr(c[i] - M[i] <= U * e_cm[i], name='orientation_selection_cm_0_%d'%i)
+        model.addConstr(M[i] - c[i] <= U * e_cm[i], name='orientation_selection_cm_1_%d'%i)
+        model.addConstr(c[i] - N[i] <= U * e_cn[i], name='orientation_selection_cn_0_%d'%i)
+        model.addConstr(N[i] - c[i] <= U * e_cn[i], name='orientation_selection_cm_1_%d'%i)
+        model.addConstr(c[i] - L[i] <= U * e_cl[i], name='orientation_selection_cl_0_%d'%i)
+        model.addConstr(L[i] - c[i] <= U * e_cl[i], name='orientation_selection_cl_1_%d'%i)
 
         model.addConstr(e_am[i] + e_an[i] + e_al[i] == 2, name='orientation_selection_sum_a_%d'%i)
         model.addConstr(e_bm[i] + e_bn[i] + e_bl[i] == 2, name='orientation_selection_sum_b_%d'%i)
@@ -171,14 +171,15 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         
         # non-overlapping
         for j in range(i+1, n_item):
-            model.addConstr(x[j] - x[i] - a[i] >= -M * o_x[0, i, j], name='overlapping_x_0_%d_%d'%(i,j))
-            model.addConstr(x[i] - x[j] - a[j] >= -M * o_x[1, i, j], name='overlapping_x_1_%d_%d'%(i,j))
-            model.addConstr(y[j] - y[i] - b[i] >= -M * o_y[0, i, j], name='overlapping_y_0_%d_%d'%(i,j))
-            model.addConstr(y[i] - y[j] - b[j] >= -M * o_y[1, i, j], name='overlapping_y_1_%d_%d'%(i,j))
-            model.addConstr(z[j] - z[i] - c[i] >= -M * o_z[0, i, j], name='overlapping_z_0_%d_%d'%(i,j))
-            model.addConstr(z[i] - z[j] - c[j] >= -M * o_z[1, i, j], name='overlapping_z_1_%d_%d'%(i,j))
-            model.addConstr(o_x[0, i, j] + o_x[1, i, j] + o_y[0, i, j] + o_y[1, i, j] + o_z[0, i, j] + o_z[1, i, j] <= 5, name='overlapping_sum_%d_%d'%(i,j))
+            model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[i, j], name='overlapping_x_0_%d_%d'%(i,j))
+            model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[j, i], name='overlapping_x_0_%d_%d'%(j,i))
+            model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[i, j], name='overlapping_y_0_%d_%d'%(i,j))
+            model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[j, i], name='overlapping_y_1_%d_%d'%(j,i))
+            model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[i, j], name='overlapping_z_0_%d_%d'%(i,j))
+            model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[j, i], name='overlapping_z_1_%d_%d'%(j,i))
+            model.addConstr(o_x[i, j] + o_x[j, i] + o_y[i, j] + o_y[j, i] + o_z[j, i] + o_z[j, i] <= 5, name='overlapping_sum_%d_%d'%(i,j))
             
+
         # max height
         model.addConstr(max_height >= z[i] + c[i], name='max_height_%d'%i)
 

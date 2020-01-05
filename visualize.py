@@ -51,9 +51,6 @@ def visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shr
     filled = np.zeros(tuple(container_size), dtype=bool)
     colors = np.empty(filled.shape, dtype=object)
     for i in range(len(seq)):
-        print(x_pos[seq[i]], x_pos[seq[i]] + a_len[seq[i]])
-        print(y_pos[seq[i]], y_pos[seq[i]] + b_len[seq[i]])
-        print(z_pos[seq[i]], z_pos[seq[i]] + c_len[seq[i]])
         filled[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = True
         colors[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = color_packed # color_new
         ax.voxels(filled, facecolors=colors, alpha=0.9)
