@@ -243,7 +243,7 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         # visualize
         if visualization:
             seq = list(map(lambda item : item[0], item_info))
-            visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shrink_ratio=1)
+            visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shrink_ratio=5)
             for i in range(n_item):
                 print(i)
                 print('%.1f'%x[i].x, "-", '%.1f'%(x[i].x + a[i].x))
@@ -258,7 +258,7 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
 
 if __name__ == "__main__":
 
-    item_info = packing(container_size, item_size, enlarge=True, visualization=True)
+    item_info = packing(container_size, item_size, enlarge=False, visualization=True)
     for item in item_info:
         seq, x, y, z, [o1, o2, o3] = item
         print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
