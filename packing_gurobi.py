@@ -136,16 +136,16 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
 
     for i in range(n_item):
         # in container
-        model.addConstr(x[i] <= A - a[i], name='in_container_x_%d'%i)
-        model.addConstr(y[i] <= B - b[i], name='in_container_y_%d'%i)
-        model.addConstr(z[i] <= C - c[i], name='in_container_z_%d'%i)
+        model.addConstr(x[i] + a[i] <= A, name='in_container_x_%d'%i)
+        model.addConstr(y[i] + b[i] <= B, name='in_container_y_%d'%i)
+        model.addConstr(z[i] + c[i] <= C, name='in_container_z_%d'%i)
 
         # orientation selection
         model.addConstr(a[i] - M[i] <= U * e_am[i], name='orientation_selection_am_0_%d'%i)
         model.addConstr(M[i] - a[i] <= U * e_am[i], name='orientation_selection_am_1_%d'%i)
         model.addConstr(a[i] - N[i] <= U * e_an[i], name='orientation_selection_an_0_%d'%i)
         model.addConstr(N[i] - a[i] <= U * e_an[i], name='orientation_selection_an_1_%d'%i)
-        model.addConstr(a[i] - L[i] <= U * e_al[i], name='orientation_selection_al_0_%d'%i)
+        model.addConstr(a[i] - L[i] <=  U * e_al[i], name='orientation_selection_al_0_%d'%i)
         model.addConstr(L[i] - a[i] <= U * e_al[i], name='orientation_selection_al_1_%d'%i)
 
         model.addConstr(b[i] - M[i] <= U * e_bm[i], name='orientation_selection_bm_0_%d'%i)
@@ -172,11 +172,11 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         # non-overlapping
         for j in range(i+1, n_item):
             model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[i, j], name='overlapping_x_0_%d_%d'%(i,j))
-            model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[j, i], name='overlapping_x_0_%d_%d'%(j,i))
+            model.addConstr(x[i] - x[j] - a[j] >= -U * o_x[j, i], name='overlapping_x_0_%d_%d'%(j,i))
             model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[i, j], name='overlapping_y_0_%d_%d'%(i,j))
-            model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[j, i], name='overlapping_y_1_%d_%d'%(j,i))
+            model.addConstr(y[i] - y[j] - b[j] >= -U * o_y[j, i], name='overlapping_y_1_%d_%d'%(j,i))
             model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[i, j], name='overlapping_z_0_%d_%d'%(i,j))
-            model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[j, i], name='overlapping_z_1_%d_%d'%(j,i))
+            model.addConstr(z[i] - z[j] - c[j] >= -U * o_z[j, i], name='overlapping_z_1_%d_%d'%(j,i))
             model.addConstr(o_x[i, j] + o_x[j, i] + o_y[i, j] + o_y[j, i] + o_z[j, i] + o_z[j, i] <= 5, name='overlapping_sum_%d_%d'%(i,j))
             
 
