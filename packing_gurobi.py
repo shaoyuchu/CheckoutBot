@@ -232,19 +232,19 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         # orientation
         orientation = extractOrientation(model.getVars())
 
-        # print position of all items
+        # sort by z, then x, then y
+        item_info = list(zip(range(n_item), ret_x, ret_y, ret_z, orientation))
+        item_info.sort(key=cmp_to_key(compare))
+
+        # visualize
         if visualization:
-            print("visulizing ", container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len)
-            # visualize(container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len)
+            seq = list(map(lambda item : item[0], item_info))
+            visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shrink_ratio=5)
             for i in range(n_item):
                 print(i)
                 print('%.1f'%x[i].x, "-", '%.1f'%(x[i].x + a[i].x))
                 print('%.1f'%y[i].x, "-", '%.1f'%(y[i].x + b[i].x))
                 print('%.1f'%z[i].x, "-", '%.1f'%(z[i].x + c[i].x))
-
-        # sort by z, then x, then y
-        item_info = list(zip(range(n_item), ret_x, ret_y, ret_z, orientation))
-        item_info.sort(key=cmp_to_key(compare))
 
     return item_info
 
@@ -254,7 +254,7 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
 
 if __name__ == "__main__":
 
-    item_info = packing(container_size, item_size, enlarge=False)
+    item_info = packing(container_size, item_size, enlarge=True, visualization=True)
     for item in item_info:
         seq, x, y, z, [o1, o2, o3] = item
         print(seq, '%.1f'%x, '%.1f'%y, '%.1f'%z, [o1, o2, o3])
