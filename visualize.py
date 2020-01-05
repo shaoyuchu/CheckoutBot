@@ -36,6 +36,7 @@ def visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shr
     color_packed = 'orange'
     color_new = 'orangered'
     filenames = []
+    # x_points, y_points, z_points = [], [], []
     filled = np.zeros(tuple(container_size), dtype=bool)
     colors = np.empty(filled.shape, dtype=object)
     for i in range(len(seq)):
@@ -54,12 +55,11 @@ def visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shr
         filled[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = True
         colors[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = color_packed # color_new
         ax.voxels(filled, facecolors=colors, alpha=0.9)
+        
         filenames.append('visualization/%d.png'%i)
-        plt.title('Item#%d Packed'%seq[i])
+        plt.title('Item #%d Packed'%seq[i])
         plt.savefig(filenames[-1])
         print(filenames[-1], 'saved')
-        # colors[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = color_packed
-        
 
     gifGenerator(filenames)
 
