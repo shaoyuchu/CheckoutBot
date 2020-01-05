@@ -18,10 +18,10 @@ def compare(item1, item2):
     bool2int = lambda b: 1 if b else -1
     if abs(z1 - z2) > 0.1:
         return bool2int(z1 > z2)
-    elif abs(x1 - x2) > 0.1:
-        return bool2int(x1 > x2)
-    else:
+    elif abs(y1 - y2) > 0.1:
         return bool2int(y1 > y2)
+    else:
+        return bool2int(x1 > x2)
     
 def extractOrientation(variables):
     values = {'e_am' : [], 'e_an' : [], 'e_al' : [],
