@@ -18,10 +18,10 @@ def compare(item1, item2):
     bool2int = lambda b: 1 if b else -1
     if abs(z1 - z2) > 0.1:
         return bool2int(z1 > z2)
-    elif abs(x1 - x2) > 0.1:
-        return bool2int(x1 > x2)
-    else:
+    elif abs(y1 - y2) > 0.1:
         return bool2int(y1 > y2)
+    else:
+        return bool2int(x1 > x2)
     
 def extractOrientation(variables):
     values = {'e_am' : [], 'e_an' : [], 'e_al' : [],
@@ -179,7 +179,6 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
             model.addConstr(z[i] - z[j] - c[j] >= -U * o_z[j, i], name='overlapping_z_1_%d_%d'%(j,i))
             model.addConstr(o_x[i, j] + o_x[j, i] + o_y[i, j] + o_y[j, i] + o_z[j, i] + o_z[j, i] <= 5, name='overlapping_sum_%d_%d'%(i,j))
             
-
         # max height
         model.addConstr(max_height >= z[i] + c[i], name='max_height_%d'%i)
 
