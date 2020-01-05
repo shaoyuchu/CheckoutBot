@@ -40,11 +40,9 @@ def visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shr
     filled = np.zeros(tuple(container_size), dtype=bool)
     colors = np.empty(filled.shape, dtype=object)
     for i in range(len(seq)):
-        # x_points += [x_pos[seq[i]]] * 4 + [x_pos[seq[i]] + a_len[seq[i]]] * 4
-        # y_points += [y_pos[seq[i]], y_pos[seq[i]] + b_len[seq[i]]] * 4
-        # z_points += [z_pos[seq[i]], z_pos[seq[i]], z_pos[seq[i]] + c_len[seq[i]], z_pos[seq[i]] + c_len[seq[i]]] * 2
         fig = plt.figure()
         ax = fig.gca(projection='3d')
+        ax.view_init(30, 110)
         ax.set_xlabel('x (%dmm)'%shrink_ratio)
         ax.set_ylabel('y (%dmm)'%shrink_ratio)
         ax.set_zlabel('z (%dmm)'%shrink_ratio)
@@ -57,7 +55,7 @@ def visualize(seq, container_size, x_pos, y_pos, z_pos, a_len, b_len, c_len, shr
         filled[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = True
         colors[x_pos[seq[i]]:x_pos[seq[i]] + a_len[seq[i]], y_pos[seq[i]]:y_pos[seq[i]] + b_len[seq[i]], z_pos[seq[i]]:z_pos[seq[i]] + c_len[seq[i]]] = color_packed # color_new
         ax.voxels(filled, facecolors=colors, alpha=0.9)
-        # ax.scatter3D(x_points, y_points, z_points, c=z_points, cmap='hsv')
+        
         filenames.append('visualization/%d.png'%i)
         plt.title('Item #%d Packed'%seq[i])
         plt.savefig(filenames[-1])
