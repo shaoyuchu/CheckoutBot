@@ -170,7 +170,7 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         model.addConstr(e_al[i] + e_bl[i] + e_cl[i] == 2, name='orientation_selection_sum_l_%d'%i)
         
         # non-overlapping
-        for j in range(i+1, n_item):
+        for j in range(n_item):
             model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[i, j], name='overlapping_x_0_%d_%d'%(i,j))
             model.addConstr(x[i] - x[j] - a[j] >= -U * o_x[j, i], name='overlapping_x_0_%d_%d'%(j,i))
             model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[i, j], name='overlapping_y_0_%d_%d'%(i,j))
