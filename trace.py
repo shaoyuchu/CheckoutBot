@@ -3,6 +3,7 @@ import numpy as np
 import queue
 from param import *
 import pandas as pd
+from helper import *
 
 # grabbing (int, int)
 
@@ -106,24 +107,31 @@ def traceRoute(s, ind, SN, face, grabbing):
             # rotate to grab 7, do the rest as grabbing 7
             pass
 
-def GetReady(s, matching):
+def GetReady(s, SN, matching):
     # matching ['x', 'y', 'z']
     # saying a should match to x axis, and so on.
     # [a , b, c]
+    size_of_box = GetSizeBySN(SN)
+    return_matching = 0
+    for i in range(len(matching)):
+        if matching[i] == 'y':
+            return_matching = size_of_box[i]
+    print("size of box {} matching: {} return_matching: {}".format(size_of_box, matching, return_matching))
     if matching[2] == 'z':
         # easiest part
         if matching[0] == 'y':
             # no rotation
-            print("easiest, no rotation\n Done!.")
-            pass
-        else:
-            # rotate 90
             print("rotate 90")
             s.sendall(open_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
             s.sendall(Rotate_gripper_90.encode('ascii'))
             s.sendall(man_pose_inv_adj.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
+            pass
+        else:
+            # rotate 90
+            print("easiest, no rotation\n Done!.")
+            
             
             pass
         s.sendall(rise_pose.encode('ascii'))
@@ -140,14 +148,14 @@ def GetReady(s, matching):
         if matching[1] == 'x':
             # no rotation
             s.sendall(man_pose_J.encode('ascii'))
+            s.sendall(rise_pose.encode('ascii'))
+            s.sendall(Rotate_gripper_90.encode('ascii'))
+            s.sendall(man_pose_inv.encode('ascii'))
             
             print("z x")
             pass
         else:
             s.sendall(man_pose_J.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
-            s.sendall(Rotate_gripper_90.encode('ascii'))
-            s.sendall(man_pose_inv.encode('ascii'))
             # rotate 90
             print("z x 90")
             pass
@@ -171,18 +179,19 @@ def GetReady(s, matching):
             # do nothing
             
             print("x z")
-            pass
-        else:
-            # rotate 90
-            print("x z 90")
-            
             s.sendall(open_grip.encode('ascii'))
             s.sendall(rise_pose.encode('ascii'))
             s.sendall(Rotate_gripper_90.encode('ascii'))
             s.sendall(man_pose_inv.encode('ascii'))
             s.sendall(close_grip.encode('ascii'))
+            
+            pass
+        else:
+            # rotate 90
+            print("x z 90")
+            
             pass
         # go to packing pose.
 
         s.sendall(rise_pose.encode('ascii'))
-    pass
+    return return_matching

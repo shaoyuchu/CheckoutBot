@@ -65,11 +65,11 @@ def match2database(SN, actual_length):
     print("(a,b) {}".format(ab))
     print("(b,c) {}".format(bc))
     print("(a,c) {}".format(ac))
-    if ab < bc and ab < ac:
+    if ab <= bc and ab <= ac:
         return (database_length[0], database_length[1]), database_length[2]
-    elif bc < ab and bc < ac:
+    elif bc <= ab and bc <= ac:
         return (database_length[1], database_length[2]), database_length[0]
-    elif ac < bc and ac < ab:
+    elif ac <= bc and ac <= ab:
         return (database_length[0], database_length[2]), database_length[1]
     pass
 

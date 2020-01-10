@@ -76,7 +76,8 @@ if __name__ == "__main__":
         object_size = GetSizeBySN(SN)
         xs.append(object_size[0]); ys.append(object_size[1]); zs.append(object_size[2])
         print("face: {} grabbing {}".format(face, grabbing))
-        traceRoute(s,i, SN, face, grabbing)
+        if SN not in [18, 19, 10 , 11]:
+            traceRoute(s,i, SN, face, grabbing)
         
         # ==========================================
         # ReCalibrating the centroid of object 
@@ -89,6 +90,7 @@ if __name__ == "__main__":
         val = 'MOVP ' + str(p_hat[0]) + ' ' + str(p_hat[1]) + ' -200 ' + '90 0 180\n'
         checkPoint(val)
         s.sendall(val.encode('ascii'))
+        input()
         s.sendall(open_grip.encode('ascii'))
         s.sendall("GOHOME\n".encode('ascii'))
         s.sendall("MOVJ # # # # # 0\n".encode('ascii'))
@@ -130,26 +132,38 @@ if __name__ == "__main__":
 
         
 
-    packing_result = packing(container_size, [xs, ys, zs])
+    packing_result = packing(container_size, [xs, ys, zs],True, True)
     # packing result returns
     # index of interpose, (x, y, z), mapping for a, b, c to which axis.
     # 3 1.0 10.5 0.0 ['y', 'x', 'z']
     # 0 1.5 13.5 0.0 ['z', 'y', 'x']
+    print("******** PACKING RESULT ************")
+    for i in packing_result:
+        print(i)
+    s.sendall(inter_pos_general.encode('ascii'))
     input("****** Intermediate phase completed!...")
+    
     for item in packing_result:
-        seq, x, y, z, [o1, o2, o3] = item
+        
+        s.sendall(inter_pos_general.encode('ascii'))
+        seq, packing_x, packing_y, packing_z, [o1, o2, o3] = item
         s.sendall(inter_pos_rise[seq].encode('ascii'))
         s.sendall(inter_pos[seq].encode('ascii'))
         # ======================================================== manipulate the object
         # man pose here
-        if inter_pose_register[seq] != 18 and inter_pose_register[seq] != 19:
-            s.sendall(close_grip.encode('ascii'))
-            s.sendall(rise_pose.encode('ascii'))
+        block_size = 0
+        s.sendall(close_grip.encode('ascii'))
+        s.sendall(rise_pose.encode('ascii'))
+        
+        input("Get ready.....")
+        if inter_pose_register[seq] not in [18, 19, 10, 11]:
             s.sendall(temp_pose.encode('ascii'))
             s.sendall(man_pose_J_adj.encode('ascii'))
-            input("Get ready.....")
-            GetReady(s, ['y', 'z', 'x'])
+            
+            block_size = GetReady(s, inter_pose_register[seq], [o1, o2, o3])
         # ======================================================== calibrate
+        else:
+            block_size = 50
 
         # ReCalibrating the centroid of object 
         # with the manipulator
@@ -196,14 +210,28 @@ if __name__ == "__main__":
         s.sendall(rise_pose.encode('ascii'))
         
         # # packing pose
-        s.sendall(packing_pose.encode('ascii'))
+        s.sendall("MOVP {} {} 0 -0.54 2.69 -178.876\n".format(packing_pose_x + packing_x, packing_pose_y + packing_y + 180).encode('ascii'))
+        s.sendall(packing_pose.format(packing_pose_x + packing_x, packing_pose_y + packing_y + 180).encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall(close_grip.encode('ascii'))
         s.sendall(open_grip.encode('ascii'))
         input()
         s.sendall(rise_packing.encode('ascii'))
-        s.sendall(close_grip.encode('ascii'))
+        # s.sendall(close_grip.encode('ascii'))
         input()
-        s.sendall(pushing_pose.encode('ascii'))
+        s.sendall(packing_pose.format(packing_pose_x + packing_x, packing_pose_y + packing_y + 260).encode('ascii'))
+        input("block size is: {}".format(block_size))
+        s.sendall("SETPTPSPEED 3\n".encode('ascii'))
+        s.sendall("SETLINESPEED 20\n".encode('ascii'))
         input()
+        s.sendall(packing_pose.format(packing_pose_x + packing_x, packing_pose_y + packing_y + block_size/2 + 40).encode('ascii'))
+
+        s.sendall("SETPTPSPEED 15\n".encode('ascii'))
+        s.sendall("SETLINESPEED 35\n".encode('ascii'))
+        input()
+        s.sendall(rise_packing.encode('ascii'))
+        s.sendall(open_grip.encode('ascii'))
+        s.sendall("GOHOME\n".encode('ascii'))
         # # pushing pose
         # # push
         # # GOHOME
