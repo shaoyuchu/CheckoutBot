@@ -171,13 +171,12 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         
         # non-overlapping
         for j in range(n_item):
-            if j != i:
-                model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[i, j], name='overlapping_x_0_%d_%d'%(i,j))
-                model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[i, j], name='overlapping_y_0_%d_%d'%(i,j))
-                model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[i, j], name='overlapping_z_0_%d_%d'%(i,j))
-                if j > i:
-                    model.addConstr(o_x[i, j] + o_x[j, i] + o_y[i, j] + o_y[j, i] + o_z[j, i] + o_z[j, i] <= 5, name='overlapping_sum_%d_%d'%(i,j))
-            
+            model.addConstr(x[j] - x[i] - a[i] >= -U * o_x[i, j], name='overlapping_x_0_%d_%d'%(i,j))
+            model.addConstr(y[j] - y[i] - b[i] >= -U * o_y[i, j], name='overlapping_y_0_%d_%d'%(i,j))
+            model.addConstr(z[j] - z[i] - c[i] >= -U * o_z[i, j], name='overlapping_z_0_%d_%d'%(i,j))
+            if j > i:
+                model.addConstr(o_x[i, j] + o_x[j, i] + o_y[i, j] + o_y[j, i] + o_z[j, i] + o_z[j, i] <= 5, name='overlapping_sum_%d_%d'%(i,j))
+
         # max height
         model.addConstr(max_height >= z[i] + c[i], name='max_height_%d'%i)
 
@@ -213,7 +212,6 @@ def packing(container_size, item_size, enlarge=False, visualization=False):
         model.optimize()
 
     # ---------------------------------------- RESULT ----------------------------------------
-    
     print("\ntime: ", process_time(), "sec")
 
     ret_x, ret_y, ret_z, orientation = None, None, None, None
