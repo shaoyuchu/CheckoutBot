@@ -11,7 +11,7 @@ Christopher Giagoudakis
 - Running the code
 
     - Packages required: opencv, pyzbar, gurobi
-    - execute the complete process:
+    - Execute the complete process
         ```
         python3 main.py
         ```
