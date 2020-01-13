@@ -5,12 +5,14 @@ Ting Hsiang, Chiu
 Shao-Yu, Chu  
 Christopher Giagoudakis
 
-Intro-Video: https://www.youtube.com/watch?v=XeWJ8aPUBX8
+- Intro-Video
+    - https://www.youtube.com/watch?v=XeWJ8aPUBX8
 
-packages required: opencv, pyzbar, gurobi
+- Running the code
 
-execute the complete process:
-```
-python3 main.py
-```
+    - Packages required: opencv, pyzbar, gurobi
+    - execute the complete process:
+        ```
+        python3 main.py
+        ```
 
