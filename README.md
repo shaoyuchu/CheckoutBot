@@ -8,6 +8,9 @@ Christopher Giagoudakis
 - Intro-Video
     - https://www.youtube.com/watch?v=XeWJ8aPUBX8
 
+- Idea and Details
+    Please refer to [Project_Report](https://github.com/shaoyu0966/CheckoutBot/blob/master/Project_Report.pdf).
+
 - Running the code
 
     - Packages required: opencv, pyzbar, gurobi
@@ -15,4 +18,3 @@ Christopher Giagoudakis
         ```
         python3 main.py
         ```
-
